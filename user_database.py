@@ -30,6 +30,8 @@ def add_result_to_db(info):
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
     old_info = cur.execute(f"SELECT results FROM user WHERE reqid='{get_last_id()}'").fetchone()[0]
+    if old_info.startswith('None'):
+        old_info = old_info[4:]
     # print(old_info)
     cur.execute(f"UPDATE user SET results = '{old_info} {info}' WHERE reqid='{get_last_id()}'")
     conn.commit()
@@ -72,6 +74,19 @@ def print_db():
         print(i)
 
 
+def show_history(user_id):
+    conn = sqlite3.connect('user.db')
+    cur = conn.cursor()
+    cur.execute(f"SELECT command, city, results FROM user "
+                f"WHERE userid = '{user_id}' AND command != 'history' ORDER BY reqid DESC LIMIT 2")
+    # print(cur.fetchall())
+    hist = ''
+    for i_elem in cur.fetchall():
+        # print(i_elem)
+        hist += f' Город поиска: {i_elem[1]} \n Команда: {i_elem[0]} \n Рез-т поиска: {i_elem[2]} \n\n'
+    # print(hist)
+    return hist
+
 # new_row()
 # add_info_to_db(column='userid', info='253')
 # add_info_to_db(column='command', info='lowprice')
@@ -82,4 +97,6 @@ def print_db():
 
 # add_result_to_db(info='bla sg q3rtq herha')
 
-# print_db()
+print_db()
+
+# show_history(974598507)

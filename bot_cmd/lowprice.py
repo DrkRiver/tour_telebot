@@ -14,7 +14,6 @@ def low_price(hotel_cnt: str, city_id: str) -> List:
     """
 
     # city_id = get_city_id(city)
-
     X_RAPID_KEY = os.getenv('RapidAPI_Key')
     url = "https://hotels4.p.rapidapi.com/properties/list"
 
@@ -68,7 +67,7 @@ def low_price(hotel_cnt: str, city_id: str) -> List:
                     'distance': dist,
                     'cur price': cur_price,
         })
-    print(hotel_list_mod)
+    # print(hotel_list_mod)
 
     return hotel_list_mod
 

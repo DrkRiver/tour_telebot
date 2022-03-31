@@ -13,7 +13,6 @@ bot = telebot.TeleBot(os.getenv('token'))
 @bot.message_handler(commands=['start'])
 def welcome(message):
     ud.new_row()
-    ud.add_info_to_db('userid', message.chat.id)
     bot.send_message(message.chat.id,
                      "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, "
                      "бот созданный чтобы быть подопытным кроликом.".format(
@@ -23,11 +22,19 @@ def welcome(message):
 
 @bot.message_handler(content_types=['text'])
 def command(message):
-    ud.add_info_to_db('command', message.text)
+    # ud.add_info_to_db('userid', message.chat.id)
+    # ud.add_info_to_db('command', message.text)
     if message.chat.type == 'private':
         if message.text.lower() == 'lowprice':
+
+            ud.add_info_to_db('userid', message.chat.id)
+            ud.add_info_to_db('command', message.text)
+
             bot.send_message(message.chat.id, 'В каком городе ищем?')
             bot.register_next_step_handler(message, select_hotel_count)
+        elif message.text.lower() == 'history':
+            print(ud.show_history(message.chat.id))
+            bot.send_message(message.chat.id, ud.show_history(message.chat.id))
 
 
 @bot.message_handler(func=lambda m: True)
