@@ -2,6 +2,8 @@ import os
 import telebot
 from dotenv import load_dotenv
 import user_database as ud
+from bot_cmd.lowprice import low_price
+from bot_cmd.getcityid import get_city_id
 
 
 load_dotenv()
@@ -38,7 +40,7 @@ def select_hotel_count(message):
 @bot.message_handler(func=lambda m: True)
 def pict_view(message):
     ud.add_info_to_db('hotelcount', message.text)
-    bot.send_message(message.chat.id, 'Wanna watch photos? Pick photo count')
+    bot.send_message(message.chat.id, 'Показать фото? Выбирете количество')
     bot.register_next_step_handler(message, filter_low)
 
 
@@ -47,8 +49,16 @@ def filter_low(message):
     ud.add_info_to_db('photocount', message.text)
     bot.send_message(message.chat.id, 'Waiting...')
 
+    data_n = low_price(ud.get_info_from_db(column='hotelcount'), get_city_id(ud.get_info_from_db(column='city')))
 
-# TO DO Написать модуль функции lowprice
+    for i_elem in data_n:
+        msg_to_user = ''
+        for k, v in i_elem.items():
+            msg_to_user += f'{k}: {v}\n'
+        # for j_elem in get_pict_url(i_elem['id'], int(message.text)): # TO DO написать ф-ю по фото
+        #     msg_to_user += j_elem + ' '
+        bot.send_message(message.chat.id, msg_to_user)
+        ud.add_result_to_db(msg_to_user)
 
 
 bot.polling(none_stop=True)
