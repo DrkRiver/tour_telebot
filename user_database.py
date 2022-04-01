@@ -18,26 +18,25 @@ def create_db():
     conn.commit()
 
 
-def add_info_to_db(column, info):
+def add_info_to_db(column, info):  # TODO объединить обе ф-ии add в одну с ветвлением
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
-    old_info = cur.execute(f"SELECT results FROM user WHERE reqid='{get_last_id()}'").fetchone()[0]
     cur.execute(f"UPDATE user SET '{column}' = '{info}' WHERE reqid='{get_last_id()}'")
     conn.commit()
 
 
-def add_result_to_db(info):
+def add_result_to_db(info):  # TODO убрать запись None  БД
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
     old_info = cur.execute(f"SELECT results FROM user WHERE reqid='{get_last_id()}'").fetchone()[0]
-    if old_info.startswith('None'):
-        old_info = old_info[4:]
+    # if old_info.startswith('None'):
+    #     old_info = old_info[4:]
     # print(old_info)
     cur.execute(f"UPDATE user SET results = '{old_info} {info}' WHERE reqid='{get_last_id()}'")
     conn.commit()
 
 
-def get_last_id():
+def get_last_id():  # TODO убрать эту ф-юю, заменить на запрос sql в ф-ии add выше
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
     cur.execute("SELECT * FROM user;")
