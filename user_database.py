@@ -22,14 +22,14 @@ def add_info_to_db(column, info):
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
 
-    if column == 'results':  # TODO убрать запись None  БД
-        old_info = cur.execute(f"SELECT results FROM user WHERE reqid='{get_last_id()}'").fetchone()[0]
-        # if old_info.startswith('None'):
-        #     old_info = old_info[4:]
-        # print(old_info)
+    # TODO Добавить запись сайта отеля в рез-т (соед. url запроса и id отеля),
+    #  корректное название города поиска с регионом
+
+    if column == 'results':
+        old_info = get_info_from_db(column)
+        print(old_info)
         cur.execute(f"UPDATE user SET '{column}' = '{old_info} {info}' WHERE reqid='{get_last_id()}'")
-        # TODO Добавить запись сайта отеля в рез-т (соед. url запроса и id отеля),
-        #  корректное название города поиска с регионом
+
     else:
         cur.execute(f"UPDATE user SET '{column}' = '{info}' WHERE reqid='{get_last_id()}'")
     conn.commit()
@@ -58,7 +58,8 @@ def new_row():
     create_db()
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
-    cur.execute(f"INSERT INTO user ('userid') VALUES ('None')")
+    cur.execute(f"INSERT INTO user ('userid', 'command', 'city', 'hotelcount', 'photocount', 'results') "
+                f"VALUES ('','','','','', '')")
     conn.commit()
 
 
@@ -85,16 +86,16 @@ def show_history(user_id):
     # print(hist)
     return hist
 
+
 # new_row()
 # add_info_to_db(column='userid', info='253')
 # add_info_to_db(column='command', info='lowprice')
 # add_info_to_db(column='city', info='Denver')
 # add_info_to_db(column='hotelcount', info='5')
 # add_info_to_db(column='photocount', info='6')
-
-
-# add_result_to_db(info='bla sg q3rtq herha')
-
+# add_info_to_db('results', '1st bla')
+# add_info_to_db('results', '2nd bla-bla')
+# add_info_to_db('results', '3rd bla-bla-bla')
+#
+# #
 print_db()
-
-# show_history(974598507)

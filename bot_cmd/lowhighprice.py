@@ -5,10 +5,8 @@ from typing import List, Any
 from dotenv import load_dotenv
 load_dotenv()
 
-# from getcityid import get_city_id
 
-
-def low_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
+def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
     """
     :param cmd:
     :param city_id: принимает строковое значение id искомого города
@@ -16,8 +14,7 @@ def low_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
     :return: возвращает список отелей в искомом городе с мин ценой за ночь
     """
 
-    # city_id = get_city_id(city)
-    X_RAPID_KEY = os.getenv('RapidAPI_Key')
+    x_rapid_key = os.getenv('RapidAPI_Key')
     url = "https://hotels4.p.rapidapi.com/properties/list"
 
     sort_order = "HIGHPRICE"
@@ -30,7 +27,7 @@ def low_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
 
     headers = {
         'x-rapidapi-host': "hotels4.p.rapidapi.com",
-        'x-rapidapi-key': X_RAPID_KEY
+        'x-rapidapi-key': x_rapid_key
         }
 
     response = requests.request("GET", url, headers=headers, params=querystring)
@@ -77,7 +74,3 @@ def low_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
     # print(hotel_list_mod)
 
     return hotel_list_mod
-
-
-# print(low_price('3', get_city_id('London'), 'highprice'))
-# print(low_price('3', get_city_id('London'), 'lowprice'))

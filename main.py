@@ -3,7 +3,7 @@ from telebot import types
 import telebot
 from dotenv import load_dotenv
 import user_database as ud
-from bot_cmd.lowprice import low_price
+from bot_cmd.lowhighprice import low_high_price
 from bot_cmd.getcityid import get_city_id
 from bot_cmd.get_photo import get_pict_url
 
@@ -77,8 +77,11 @@ def pict_view(message):
 def filter_low(message):
     ud.add_info_to_db('photocount', message.text)
     bot.send_message(message.chat.id, 'Waiting...')
+    # bot.answer_callback_query(callback_query_id=message.chat.id, show_alert=True,
+    #                           text="ЭТО ТЕСТОВОЕ УВЕДОМЛЕНИЕ!!11")
+
     city_id = get_city_id(ud.get_info_from_db(column='city'))
-    data_n = low_price(ud.get_info_from_db(column='hotelcount'), city_id, ud.get_info_from_db('command'))
+    data_n = low_high_price(ud.get_info_from_db('hotelcount'), city_id, ud.get_info_from_db('command'))
 
     for i_elem in data_n:
         msg_to_user = ''
