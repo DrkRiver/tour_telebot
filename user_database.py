@@ -18,25 +18,24 @@ def create_db():
     conn.commit()
 
 
-def add_info_to_db(column, info):  # TODO объединить обе ф-ии add в одну с ветвлением
+def add_info_to_db(column, info):
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
-    cur.execute(f"UPDATE user SET '{column}' = '{info}' WHERE reqid='{get_last_id()}'")
+
+    if column == 'results':  # TODO убрать запись None  БД
+        old_info = cur.execute(f"SELECT results FROM user WHERE reqid='{get_last_id()}'").fetchone()[0]
+        # if old_info.startswith('None'):
+        #     old_info = old_info[4:]
+        # print(old_info)
+        cur.execute(f"UPDATE user SET '{column}' = '{old_info} {info}' WHERE reqid='{get_last_id()}'")
+        # TODO Добавить запись сайта отеля в рез-т (соед. url запроса и id отеля),
+        #  корректное название города поиска с регионом
+    else:
+        cur.execute(f"UPDATE user SET '{column}' = '{info}' WHERE reqid='{get_last_id()}'")
     conn.commit()
 
 
-def add_result_to_db(info):  # TODO убрать запись None  БД
-    conn = sqlite3.connect('user.db')
-    cur = conn.cursor()
-    old_info = cur.execute(f"SELECT results FROM user WHERE reqid='{get_last_id()}'").fetchone()[0]
-    # if old_info.startswith('None'):
-    #     old_info = old_info[4:]
-    # print(old_info)
-    cur.execute(f"UPDATE user SET results = '{old_info} {info}' WHERE reqid='{get_last_id()}'")
-    conn.commit()
-
-
-def get_last_id():  # TODO убрать эту ф-юю, заменить на запрос sql в ф-ии add выше
+def get_last_id():
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
     cur.execute("SELECT * FROM user;")

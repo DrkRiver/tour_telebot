@@ -5,9 +5,12 @@ from typing import List, Any
 from dotenv import load_dotenv
 load_dotenv()
 
+# from getcityid import get_city_id
 
-def low_price(hotel_cnt: str, city_id: str) -> List:
+
+def low_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
     """
+    :param cmd:
     :param city_id: принимает строковое значение id искомого города
     :param hotel_cnt: принимает строковое значение количества искомых отелей
     :return: возвращает список отелей в искомом городе с мин ценой за ночь
@@ -17,9 +20,13 @@ def low_price(hotel_cnt: str, city_id: str) -> List:
     X_RAPID_KEY = os.getenv('RapidAPI_Key')
     url = "https://hotels4.p.rapidapi.com/properties/list"
 
+    sort_order = "HIGHPRICE"
+    if cmd.lower().replace(' ', '') == 'lowprice':
+        sort_order = "PRICE"
+    # TODO разобраться с параметром поиска sortOrder: результат некорректен.
     querystring = {"destinationId": city_id, "pageNumber": "1", "pageSize": hotel_cnt,
                    "checkIn": "2022-06-08", "checkOut": "2022-06-09", "adults1": "1",
-                   "sortOrder": "PRICE"}
+                   "sortOrder": sort_order}
 
     headers = {
         'x-rapidapi-host': "hotels4.p.rapidapi.com",
@@ -72,3 +79,5 @@ def low_price(hotel_cnt: str, city_id: str) -> List:
     return hotel_list_mod
 
 
+# print(low_price('3', get_city_id('London'), 'highprice'))
+# print(low_price('3', get_city_id('London'), 'lowprice'))

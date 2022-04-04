@@ -7,7 +7,6 @@ from bot_cmd.lowprice import low_price
 from bot_cmd.getcityid import get_city_id
 from bot_cmd.get_photo import get_pict_url
 
-
 load_dotenv()
 bot = telebot.TeleBot(os.getenv('token'))
 
@@ -35,26 +34,28 @@ def welcome(message):
 def command(message):
     if message.chat.type == 'private':
 
-        if message.text.lower() == 'history':
+        if message.text.lower().replace(' ', '') == 'history':
             print(ud.show_history(message.chat.id))
             bot.send_message(message.chat.id, ud.show_history(message.chat.id))
+
+        elif message.text.lower().replace(' ', '') == 'help':
+            bot.send_message(message.chat.id, 'Команды бота:\n'
+                                              '/bestdeal - отобразит лучшие предложения по Вашим параметрам\n'
+                                              '/lowprice - отели с самой низкой ценой\n'
+                                              '/highprice - отели с самой высокой ценой\n'
+                                              '/history - покажет 2 последних запроса')
 
         else:
             ud.new_row()
             ud.add_info_to_db('userid', message.chat.id)
             ud.add_info_to_db('command', message.text)
 
-            if message.text.lower() == 'lowprice':
+            if message.text.lower().replace(' ', '') == 'lowprice' \
+                    or message.text.lower().replace(' ', '') == 'highprice':
                 bot.send_message(message.chat.id, 'В каком городе ищем?')
                 bot.register_next_step_handler(message, select_hotel_count)
-            elif message.text.lower() == 'highprice':
-                pass
+
             elif message.text.lower() == 'best deal':
-                bot.send_photo(message.chat.id,
-                                 'https://exp.cdn-hotels.com/hotels/22000000/21230000/21226200/21226125/5a9ce7ee_b.jpg'
-                                 , parse_mode="HTML")
-                pass
-            elif message.text.lower() == 'help':
                 pass
 
 
@@ -77,7 +78,7 @@ def filter_low(message):
     ud.add_info_to_db('photocount', message.text)
     bot.send_message(message.chat.id, 'Waiting...')
     city_id = get_city_id(ud.get_info_from_db(column='city'))
-    data_n = low_price(ud.get_info_from_db(column='hotelcount'), city_id)
+    data_n = low_price(ud.get_info_from_db(column='hotelcount'), city_id, ud.get_info_from_db('command'))
 
     for i_elem in data_n:
         msg_to_user = ''
@@ -87,7 +88,7 @@ def filter_low(message):
         for j_elem in get_pict_url(i_elem['id'], int(message.text)):
             msg_to_user += j_elem + ' '
             bot.send_photo(message.chat.id, j_elem, parse_mode="HTML")
-        ud.add_result_to_db(msg_to_user)
+        ud.add_info_to_db('results', msg_to_user)
 
 
 bot.polling(none_stop=True)
