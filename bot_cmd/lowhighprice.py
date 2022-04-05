@@ -33,10 +33,10 @@ def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
     response = requests.request("GET", url, headers=headers, params=querystring)
     data = json.loads(response.text)
 
-    # with open(f'{city}_HOTELS.json', 'w', encoding='utf-8') as file:
+    # with open(f'{city_id}_HOTELS.json', 'w', encoding='utf-8') as file:
     #     json.dump(data, file, indent=4)
     #
-    # with open(f'{city}_HOTELS.json', 'r', encoding='utf-8') as file:
+    # with open(f'{city_id}_HOTELS.json', 'r', encoding='utf-8') as file:
     #     data = json.load(file)
 
     hotel_list = data["data"]["body"]["searchResults"]["results"]
@@ -52,6 +52,14 @@ def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
         except KeyError:
             name = 'N/A'
         try:
+            star_rate = elem["starRating"]
+        except KeyError:
+            star_rate = 'N/A'
+        try:
+            rating = elem["guestReviews"]['unformattedRating']
+        except KeyError:
+            rating = 'N/A'
+        try:
             addr = elem["address"]["streetAddress"]
         except KeyError:
             addr = 'N/A'
@@ -65,8 +73,10 @@ def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
             cur_price = 'N/A'
 
         hotel_list_mod.append({
-                    'id': elem['id'],
+                    '\nid': elem['id'],
                     'name': name,
+                    'star rating': star_rate,
+                    'rating': rating,
                     'address': addr,
                     'distance': dist,
                     'cur price': cur_price,

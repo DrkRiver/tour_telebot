@@ -77,21 +77,25 @@ def pict_view(message):
 def filter_low(message):
     ud.add_info_to_db('photocount', message.text)
     bot.send_message(message.chat.id, 'Waiting...')
-    # bot.answer_callback_query(callback_query_id=message.chat.id, show_alert=True,
-    #                           text="ЭТО ТЕСТОВОЕ УВЕДОМЛЕНИЕ!!11")
 
     city_id = get_city_id(ud.get_info_from_db(column='city'))
+    city_id, city_name = city_id[0], city_id[1]
+
+    bot.send_message(message.chat.id, f'Выполняю поиск отелей в\n{city_name}')
+
     data_n = low_high_price(ud.get_info_from_db('hotelcount'), city_id, ud.get_info_from_db('command'))
 
     for i_elem in data_n:
         msg_to_user = ''
         for k, v in i_elem.items():
-            msg_to_user += f'{k}: {v} \n '
+            msg_to_user += f'{k}: {v}\n '
         bot.send_message(message.chat.id, msg_to_user)
-        for j_elem in get_pict_url(i_elem['id'], int(message.text)):
+        # print(i_elem)
+        for j_elem in get_pict_url(i_elem['\nid'], int(message.text)):
             msg_to_user += j_elem + ' '
             bot.send_photo(message.chat.id, j_elem, parse_mode="HTML")
-        ud.add_info_to_db('results', msg_to_user)
+        ud.add_info_to_db('results', msg_to_user + '\n')
+        ud.add_info_to_db('city', city_name)
 
 
 bot.polling(none_stop=True)
