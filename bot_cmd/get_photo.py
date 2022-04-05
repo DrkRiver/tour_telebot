@@ -21,3 +21,6 @@ def get_pict_url(hotel_id: str, pict_cnt: int) -> list:
     pics: list = [pic_url['baseUrl'].replace('{size}', 'b') for pic_url in data['hotelImages'][:pict_cnt]]
 
     return pics
+
+
+# print(get_pict_url('540688', 3))

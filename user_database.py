@@ -22,8 +22,7 @@ def add_info_to_db(column, info):
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
 
-    # TODO Добавить запись сайта отеля в рез-т (соед. url запроса и id отеля),
-    #  корректное название города поиска с регионом
+    # TODO Добавить запись сайта отеля в рез-т (соед. url запроса и id отеля)
 
     if column == 'results':
         old_info = get_info_from_db(column)
@@ -82,7 +81,7 @@ def show_history(user_id):
     hist = ''
     for i_elem in cur.fetchall():
         # print(i_elem)
-        hist += f' Город поиска: {i_elem[1]} \n Команда: {i_elem[0]} \n Рез-т поиска: {i_elem[2]} \n\n'
+        hist += f'Город поиска: {i_elem[1]}\n\nКоманда: {i_elem[0]}\n\nРез-т поиска:\n{i_elem[2]}\n\n'
     # print(hist)
     return hist
 
