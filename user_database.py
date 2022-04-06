@@ -10,6 +10,7 @@ def create_db():
                            userid TEXT,
                            command TEXT,
                            city TEXT,
+                           city_id TEXT,
                            hotelcount TINYINT,
                            photocount TINYINT,
                            results TEXT);
@@ -26,7 +27,7 @@ def add_info_to_db(column, info):
 
     if column == 'results':
         old_info = get_info_from_db(column)
-        print(old_info)
+        # print(old_info)
         cur.execute(f"UPDATE user SET '{column}' = '{old_info} {info}' WHERE reqid='{get_last_id()}'")
 
     else:
@@ -97,4 +98,7 @@ def show_history(user_id):
 # add_info_to_db('results', '3rd bla-bla-bla')
 #
 # #
+# create_db()
+# new_row()
+# add_info_to_db(column='city_id', info='332483')
 print_db()

@@ -30,14 +30,15 @@ def get_city_id(city):
     # with open(f'{city}.json', 'r') as file:
     #     data = json.load(file)
 
-    city_reg = data["suggestions"][0]["entities"][0]["caption"]
-    city_reg = city_reg[city_reg.rfind(">") + 2:]
-    city_reg = data["suggestions"][0]["entities"][0]["name"] + city_reg
+    try:
+        city_reg = data["suggestions"][0]["entities"][0]["caption"]
+        city_reg = city_reg[city_reg.rfind(",") + 1:]
+        city_reg = data["suggestions"][0]["entities"][0]["name"] + ',' + city_reg
+        # ud.add_info_to_db('city', data["suggestions"][0]["entities"][0]["caption"])
+        return data["suggestions"][0]["entities"][0]["destinationId"], city_reg
 
-    # print(data["suggestions"][0]["entities"][0]["destinationId"], data["suggestions"][0]["entities"][0]["caption"])
-
-    # ud.add_info_to_db('city', data["suggestions"][0]["entities"][0]["caption"])
-    return data["suggestions"][0]["entities"][0]["destinationId"], city_reg
+    except IndexError:
+        return False
 
 
-# print(get_city_id('Defa'))
+# print(get_city_id('londo'))

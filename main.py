@@ -48,46 +48,76 @@ def command(message):
         else:
             ud.new_row()
             ud.add_info_to_db('userid', message.chat.id)
-            ud.add_info_to_db('command', message.text)
+            ud.add_info_to_db('command', message.text.lower())
 
             if message.text.lower().replace(' ', '') == 'lowprice' \
                     or message.text.lower().replace(' ', '') == 'highprice':
                 bot.send_message(message.chat.id, 'В каком городе ищем?')
-                bot.register_next_step_handler(message, select_hotel_count)
+                bot.register_next_step_handler(message, check_city)
 
             elif message.text.lower() == 'best deal':
                 pass
 
 
 @bot.message_handler(func=lambda m: True)
+def check_city(message):
+    try:
+        city_info = get_city_id(message.text)
+        city_id, city_name = city_info[0], city_info[1]
+    except TypeError:
+        city_info = False
+        city_id, city_name = None, None
+    if not city_info:
+        msg = bot.reply_to(message, 'Город введен некорректно, попробуйте еще раз')
+        # bot.send_message(message.chat.id, 'Город введен некорректно, попробуйте еще раз')
+        bot.register_next_step_handler(msg, check_city)
+    else:
+        ud.add_info_to_db('city_id', str(city_id))
+        ud.add_info_to_db('city', city_name)
+        bot.register_next_step_handler(message, select_hotel_count)
+
+
+# @bot.message_handler(func=lambda m: True)
 def select_hotel_count(message):
-    ud.add_info_to_db('city', message.text)
+    # ud.add_info_to_db('city', message.text)
     bot.send_message(message.chat.id, 'Сколько отелей показать?')
     bot.register_next_step_handler(message, pict_view)
 
 
-@bot.message_handler(func=lambda m: True)
+# @bot.message_handler(func=lambda m: True)
 def pict_view(message):
-    if message.text.isdigit() and int(message.text) <= 5:
+    if message.text.isdecimal() and int(message.text) <= 5:
         ud.add_info_to_db('hotelcount', message.text)
         bot.send_message(message.chat.id, 'Показать фото? Выбирете количество')
-        bot.register_next_step_handler(message, filter_low)
+        bot.register_next_step_handler(message, check_photo_cnt)
     else:
         bot.send_message(message.chat.id, 'Число отелей введено некорректно. Отправьте число отелей цифрой от 1 до 5')
         bot.register_next_step_handler(message, pict_view)
 
 
 @bot.message_handler(func=lambda m: True)
+def check_photo_cnt(message):
+    if message.text.isdecimal() and int(message.text) <= 5:
+        bot.register_next_step_handler(message, filter_low)
+    else:
+        bot.send_message(message.chat.id, 'Число фото введено некорректно. Отправьте число отелей цифрой от 0 до 5')
+        bot.register_next_step_handler(message, check_photo_cnt)
+        # TODO исправить баг: при переходе в проверки (ф-ии check) нужно еще раз отправлять данные
+
+
+# @bot.message_handler(func=lambda m: True)
 def filter_low(message):
     ud.add_info_to_db('photocount', message.text)
     bot.send_message(message.chat.id, 'Waiting...')
 
-    city_id = get_city_id(ud.get_info_from_db(column='city'))
-    city_id, city_name = city_id[0], city_id[1]
+    # city_id = get_city_id(ud.get_info_from_db(column='city'))
+    # city_id, city_name = city_id[0], city_id[1]
 
-    bot.send_message(message.chat.id, f'Выполняю поиск отелей в\n{city_name}')
+    bot.send_message(message.chat.id, f'Выполняю поиск отелей в\n {ud.get_info_from_db("city")}')
 
-    data_n = low_high_price(ud.get_info_from_db('hotelcount'), city_id, ud.get_info_from_db('command'))
+    data_n = low_high_price(ud.get_info_from_db('hotelcount'),
+                            ud.get_info_from_db('city_id'),
+                            ud.get_info_from_db('command'))
 
     for i_elem in data_n:
         msg_to_user = ''
@@ -99,7 +129,7 @@ def filter_low(message):
             msg_to_user += ' ' + j_elem + ' \n'
             bot.send_photo(message.chat.id, j_elem, parse_mode="HTML")
         ud.add_info_to_db('results', msg_to_user + '\n')
-        ud.add_info_to_db('city', city_name)
+        # ud.add_info_to_db('city', city_name)
 
 
 bot.polling(none_stop=True)

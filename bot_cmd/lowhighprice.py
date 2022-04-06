@@ -17,7 +17,7 @@ def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
     x_rapid_key = os.getenv('RapidAPI_Key')
     url = "https://hotels4.p.rapidapi.com/properties/list"
 
-    sort_order = "HIGHPRICE"
+    sort_order = "PRICE_HIGHEST_FIRST"
     if cmd.lower().replace(' ', '') == 'lowprice':
         sort_order = "PRICE"
     # TODO разобраться с параметром поиска sortOrder: результат некорректен.
