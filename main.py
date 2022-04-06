@@ -68,9 +68,13 @@ def select_hotel_count(message):
 
 @bot.message_handler(func=lambda m: True)
 def pict_view(message):
-    ud.add_info_to_db('hotelcount', message.text)
-    bot.send_message(message.chat.id, 'Показать фото? Выбирете количество')
-    bot.register_next_step_handler(message, filter_low)
+    if message.text.isdigit() and int(message.text) <= 5:
+        ud.add_info_to_db('hotelcount', message.text)
+        bot.send_message(message.chat.id, 'Показать фото? Выбирете количество')
+        bot.register_next_step_handler(message, filter_low)
+    else:
+        bot.send_message(message.chat.id, 'Число отелей введено некорректно. Отправьте число отелей цифрой от 1 до 5')
+        bot.register_next_step_handler(message, pict_view)
 
 
 @bot.message_handler(func=lambda m: True)
@@ -88,11 +92,11 @@ def filter_low(message):
     for i_elem in data_n:
         msg_to_user = ''
         for k, v in i_elem.items():
-            msg_to_user += f'{k}: {v}\n '
+            msg_to_user += f'{k}: {v}\n'
         bot.send_message(message.chat.id, msg_to_user)
         # print(i_elem)
         for j_elem in get_pict_url(i_elem['\nid'], int(message.text)):
-            msg_to_user += j_elem + ' '
+            msg_to_user += ' ' + j_elem + ' \n'
             bot.send_photo(message.chat.id, j_elem, parse_mode="HTML")
         ud.add_info_to_db('results', msg_to_user + '\n')
         ud.add_info_to_db('city', city_name)
