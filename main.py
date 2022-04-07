@@ -14,7 +14,7 @@ bot = telebot.TeleBot(os.getenv('token'))
 @bot.message_handler(commands=['start'])
 def welcome(message):
     # keyboard
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     item1 = types.KeyboardButton('Best deal')
     item2 = types.KeyboardButton('Lowprice')
     item3 = types.KeyboardButton('Highprice')
@@ -69,7 +69,6 @@ def check_city(message):
         city_id, city_name = None, None
     if not city_info:
         msg = bot.reply_to(message, 'Город введен некорректно, попробуйте еще раз')
-        # bot.send_message(message.chat.id, 'Город введен некорректно, попробуйте еще раз')
         bot.register_next_step_handler(msg, check_city)
     else:
         ud.add_info_to_db('city_id', str(city_id))
@@ -79,7 +78,6 @@ def check_city(message):
 
 # @bot.message_handler(func=lambda m: True)
 def select_hotel_count(message):
-    # ud.add_info_to_db('city', message.text)
     bot.send_message(message.chat.id, 'Сколько отелей показать?')
     bot.register_next_step_handler(message, pict_view)
 
@@ -109,10 +107,6 @@ def check_photo_cnt(message):
 def filter_low(message):
     ud.add_info_to_db('photocount', message.text)
     bot.send_message(message.chat.id, 'Waiting...')
-
-    # city_id = get_city_id(ud.get_info_from_db(column='city'))
-    # city_id, city_name = city_id[0], city_id[1]
-
     bot.send_message(message.chat.id, f'Выполняю поиск отелей в\n {ud.get_info_from_db("city")}')
 
     data_n = low_high_price(ud.get_info_from_db('hotelcount'),
@@ -129,7 +123,6 @@ def filter_low(message):
             msg_to_user += ' ' + j_elem + ' \n'
             bot.send_photo(message.chat.id, j_elem, parse_mode="HTML")
         ud.add_info_to_db('results', msg_to_user + '\n')
-        # ud.add_info_to_db('city', city_name)
 
 
 bot.polling(none_stop=True)
