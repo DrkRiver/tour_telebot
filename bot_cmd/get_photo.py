@@ -15,12 +15,13 @@ def get_pict_url(hotel_id: str, pict_cnt: int) -> list:
         'x-rapidapi-host': "hotels4.p.rapidapi.com",
         'x-rapidapi-key': X_RAPID_KEY
     }
-    response = requests.request("GET", url, headers=headers, params=querystring, timeout=10)
+    if pict_cnt > 0:
+        response = requests.request("GET", url, headers=headers, params=querystring, timeout=10)
 
-    data = response.json()
-    pics: list = [pic_url['baseUrl'].replace('{size}', 'b') for pic_url in data['hotelImages'][:pict_cnt]]
+        data = response.json()
+        pics: list = [pic_url['baseUrl'].replace('{size}', 'b') for pic_url in data['hotelImages'][:pict_cnt]]
 
-    return pics
+        return pics
 
 
 # print(get_pict_url('540688', 3))

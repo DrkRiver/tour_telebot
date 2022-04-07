@@ -87,6 +87,8 @@ def show_history(user_id):
     return hist
 
 
+create_db()
+
 # new_row()
 # add_info_to_db(column='userid', info='253')
 # add_info_to_db(column='command', info='lowprice')

@@ -18,7 +18,7 @@ def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
     url = "https://hotels4.p.rapidapi.com/properties/list"
 
     sort_order = "PRICE_HIGHEST_FIRST"
-    if cmd.lower().replace(' ', '') == 'lowprice':
+    if cmd == 'lowprice':
         sort_order = "PRICE"
     querystring = {"destinationId": city_id, "pageNumber": "1", "pageSize": hotel_cnt,
                    "checkIn": "2022-06-08", "checkOut": "2022-06-09", "adults1": "1",
