@@ -32,8 +32,15 @@ def get_city_id(city):
 
     try:
         city_reg = data["suggestions"][0]["entities"][0]["caption"]
-        city_reg = city_reg[city_reg.rfind(",") + 1:]
-        city_reg = data["suggestions"][0]["entities"][0]["name"] + ',' + city_reg
+        # print(city_reg)
+        if city_reg.startswith('<'):
+            city_reg = city_reg[city_reg.rfind(",") + 1:]
+            city_reg = data["suggestions"][0]["entities"][0]["name"] + ',' + city_reg
+        elif city_reg.endswith('>'):
+            city_reg = city_reg[:city_reg.rfind(",") + 1]
+            city_reg = city_reg[:-1]
+        else:
+            city_reg = data["suggestions"][0]["entities"][0]["name"]
         # ud.add_info_to_db('city', data["suggestions"][0]["entities"][0]["caption"])
         return data["suggestions"][0]["entities"][0]["destinationId"], city_reg
 
@@ -41,4 +48,4 @@ def get_city_id(city):
         return False
 
 
-# print(get_city_id('londo'))
+# print(get_city_id('Madrid'))

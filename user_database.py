@@ -9,8 +9,11 @@ def create_db():
                            reqid INTEGER PRIMARY KEY,
                            userid TEXT,
                            command TEXT,
+                           time TEXT,
                            city TEXT,
                            city_id TEXT,
+                           price TEXT,
+                           dist TEXT,
                            hotelcount TINYINT,
                            photocount TINYINT,
                            results TEXT);
@@ -19,7 +22,7 @@ def create_db():
     conn.commit()
 
 
-def add_info_to_db(column, info):
+def add_info_to_db(column, info): # TODO справить проверку ID ользователя: данные смешиваются в многопользовательском режиме
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
 
@@ -76,13 +79,14 @@ def print_db():
 def show_history(user_id):
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
-    cur.execute(f"SELECT command, city, results FROM user "
+    cur.execute(f"SELECT command, time, city, results FROM user "
                 f"WHERE userid = '{user_id}' AND command != 'history' ORDER BY reqid DESC LIMIT 2")
     # print(cur.fetchall())
     hist = ''
     for i_elem in cur.fetchall():
         # print(i_elem)
-        hist += f'Город поиска: {i_elem[1]}\n\nКоманда: {i_elem[0]}\n\nРез-т поиска:\n{i_elem[2]}\n\n'
+        hist += f'Город поиска: {i_elem[2]}\nКоманда: {i_elem[0]}\n' \
+                f'Время вып-я команды: {i_elem[1]}\nРез-т поиска:\n{i_elem[3]}\n'
     # print(hist)
     return hist
 
