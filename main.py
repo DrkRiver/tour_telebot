@@ -38,7 +38,6 @@ def command(message):
         user_cmd = message.text[1:].lower().replace(' ', '')
 
         if user_cmd == 'history':
-            # print(ud.show_history(message.chat.id))
             bot.send_message(message.chat.id, ud.show_history(message.chat.id))
 
         elif user_cmd == 'help':
@@ -83,6 +82,7 @@ def check_city(message):
             bot.register_next_step_handler(message, hotel_count)
 
 
+@bot.message_handler(func=lambda m: True)
 def hotel_price(message):
     price = message.text.split()
     if len(price) == 2 and (price[0] + price[1]).isdecimal():
@@ -94,6 +94,7 @@ def hotel_price(message):
         bot.register_next_step_handler(msg, hotel_price)
 
 
+@bot.message_handler(func=lambda m: True)
 def hotel_distance(message):
     if message.text.isdecimal():
         ud.add_info_to_db('dist', message.text)
@@ -104,7 +105,7 @@ def hotel_distance(message):
         bot.register_next_step_handler(msg, hotel_distance)
 
 
-# @bot.message_handler(func=lambda m: True)
+@bot.message_handler(func=lambda m: True)
 def hotel_count(message):
     if message.text.isdecimal() and int(message.text) in range(1, 6):
         ud.add_info_to_db('hotelcount', message.text)
@@ -115,7 +116,7 @@ def hotel_count(message):
         bot.register_next_step_handler(msg, hotel_count)
 
 
-# @bot.message_handler(func=lambda m: True)
+@bot.message_handler(func=lambda m: True)
 def photo_count(message):
     if message.text.isdecimal() and int(message.text) in range(0, 6):
         ud.add_info_to_db('photocount', message.text)
@@ -149,19 +150,12 @@ def filter_low():
             for k, v in i_elem.items():
                 msg_to_user += f'{k}: {v}\n'
             bot.send_message(user_id, msg_to_user)
-            # print(i_elem)
             if ud.get_info_from_db('photocount') != 0:
                 for j_elem in get_pict_url(i_elem['\nid'], ud.get_info_from_db('photocount')):
                     msg_to_user += ' ' + j_elem + ' \n'
                     bot.send_photo(user_id, j_elem, parse_mode="HTML")
             ud.add_info_to_db('results', msg_to_user + '\n')
         bot.send_message(user_id, 'Поиск завершен.')
-
-    # markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
-    # item1 = types.KeyboardButton('/start')
-    # markup.add(item1)
-    # bot.send_message(user_id, 'Вернуться в главное меню '
-    #                           'можно нажав на /start', reply_markup=markup)
 
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
     item1 = types.KeyboardButton('/Best deal')

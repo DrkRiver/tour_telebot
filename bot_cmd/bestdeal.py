@@ -1,7 +1,7 @@
 import json
 import os
 import requests
-from typing import List, Any
+from typing import List
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -88,6 +88,7 @@ def best_deal(hotel_cnt: str, city_id: str, distance: str, price: str) -> List:
             hotel_list_mod.append({
                         '\nid': elem['id'],
                         'name': name,
+                        'web-site': 'hotels.com/ho' + str(elem['id']),
                         'star rating': star_rate,
                         'rating': rating,
                         'address': addr,

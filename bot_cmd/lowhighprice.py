@@ -1,7 +1,7 @@
 import json
 import os
 import requests
-from typing import List, Any
+from typing import List
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -74,12 +74,12 @@ def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
         hotel_list_mod.append({
                     '\nid': elem['id'],
                     'name': name,
+                    'web-site': 'hotels.com/ho' + str(elem['id']),
                     'star rating': star_rate,
                     'rating': rating,
                     'address': addr,
                     'distance': dist,
                     'cur price': cur_price,
         })
-    # print(hotel_list_mod)
 
     return hotel_list_mod

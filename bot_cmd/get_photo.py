@@ -23,5 +23,3 @@ def get_pict_url(hotel_id: str, pict_cnt: int) -> list:
 
         return pics
 
-
-# print(get_pict_url('540688', 3))

@@ -47,5 +47,3 @@ def get_city_id(city):
     except IndexError:
         return False
 
-
-# print(get_city_id('Madrid'))
