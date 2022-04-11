@@ -99,5 +99,3 @@ def best_deal(hotel_cnt: str, city_id: str, distance: str, price: str) -> List:
                 break
 
     return hotel_list_mod
-
-

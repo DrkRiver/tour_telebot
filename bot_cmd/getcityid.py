@@ -34,7 +34,6 @@ def get_city_id(city: str) -> Tuple or bool:
 
     try:
         city_reg = data["suggestions"][0]["entities"][0]["caption"]
-        # print(city_reg)
         if city_reg.startswith('<'):
             city_reg = city_reg[city_reg.rfind(",") + 1:]
             city_reg = data["suggestions"][0]["entities"][0]["name"] + ',' + city_reg
@@ -48,4 +47,3 @@ def get_city_id(city: str) -> Tuple or bool:
 
     except IndexError:
         return False
-
