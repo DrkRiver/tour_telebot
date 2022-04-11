@@ -1,7 +1,11 @@
 import sqlite3
+from typing import List
 
 
-def create_db():
+def create_db() -> None:
+    """
+    Функция по проверке существования базы данных и созданию её, в случае отсутствия.
+    """
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
 
@@ -22,7 +26,13 @@ def create_db():
     conn.commit()
 
 
-def add_info_to_db(column, info): # TODO справить проверку ID ользователя: данные смешиваются в многопользовательском режиме
+def add_info_to_db(column: str, info: str) -> None:
+    # TODO справить проверку ID ользователя: данные смешиваются в многопользовательском режиме
+    """
+    Функция по добавлению информации в указанный столбец БД
+    :param column: принимает строковое значение названия столбца из БД
+    :param info: принимает строковое значение информации, которую добавляет в БД
+    """
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
 
@@ -35,7 +45,11 @@ def add_info_to_db(column, info): # TODO справить проверку ID о
     conn.commit()
 
 
-def get_last_id():
+def get_last_id() -> int:
+    """
+    Функция по поиску последней строки в БД
+    :return: возвращает целочисленный номер последней записи в БД
+    """
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
     cur.execute("SELECT * FROM user;")
@@ -45,7 +59,12 @@ def get_last_id():
         return False
 
 
-def get_info_from_db(column):
+def get_info_from_db(column: str) -> str or int:
+    """
+    Функция предоставляет значение в указанном столбце в последней записи БД
+    :param column: принимает строковое значение названия столбца из БД
+    :return: возвращает строковое значение информации
+    """
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
     cur.execute(f"SELECT {column} FROM user WHERE reqid='{get_last_id()}';")
@@ -53,7 +72,10 @@ def get_info_from_db(column):
     return one_result
 
 
-def new_row():
+def new_row() -> None:
+    """
+    Функция, которая создает новую пустую запись(строку) в БД
+    """
     create_db()
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
@@ -62,7 +84,10 @@ def new_row():
     conn.commit()
 
 
-def print_db():
+def print_db() -> None:
+    """
+    Функция, выводящая всю БД
+    """
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
 
@@ -72,7 +97,12 @@ def print_db():
         print(i)
 
 
-def show_history(user_id):
+def show_history(user_id: str) -> str:
+    """
+    Функция, выдающая 2 последних записи из БД пользователю
+    :param user_id: принимает строковое значение id пользователя Telegram
+    :return: возвращает 2 последних записи из столбца results БД
+    """
     conn = sqlite3.connect('user.db')
     cur = conn.cursor()
     cur.execute(f"SELECT command, time, city, results FROM user "

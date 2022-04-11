@@ -2,14 +2,16 @@ import requests
 import json
 import os
 from dotenv import load_dotenv
+from typing import Tuple
 load_dotenv()
 
 
-def get_city_id(city):
+def get_city_id(city: str) -> Tuple or bool:
     """
 
     :param city: принимает строковое значение названия искомого города
-    :return: возвращает строковое значение ID искомого города
+    :return: возвращает кортеж из строкового значения ID искомого города и его корректного названия,
+             если введенный пользователем город не найден - возвращает булевое значение Ложь
     """
     x_rapid_key = os.getenv('RapidAPI_Key')
     url = "https://hotels4.p.rapidapi.com/locations/v2/search"

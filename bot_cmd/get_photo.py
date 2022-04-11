@@ -7,6 +7,12 @@ X_RAPID_KEY = os.getenv('RapidAPI_Key')
 
 
 def get_pict_url(hotel_id: str, pict_cnt: int) -> list:
+    """
+    Функция по получения ссылок на фотографии к найденному отелю
+    :param hotel_id: принимает строковое значение id айденного отеля
+    :param pict_cnt: принимает целочисленное значение количества фотографий
+    :return: возвращает список из ссылок на фотографии
+    """
     url = "https://hotels4.p.rapidapi.com/properties/get-hotel-photos"
 
     querystring = {"id": hotel_id}

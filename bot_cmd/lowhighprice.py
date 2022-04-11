@@ -40,9 +40,6 @@ def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
 
     hotel_list = data["data"]["body"]["searchResults"]["results"]
 
-    # with open(f'{city}_TEST_TEST.json', 'w', encoding='utf-8') as file:
-    #     json.dump(hotel_list, file, indent=4)
-
     hotel_list_mod = []
 
     for elem in hotel_list:

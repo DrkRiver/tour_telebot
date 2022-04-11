@@ -15,6 +15,10 @@ bot = telebot.TeleBot(os.getenv('token'))
 
 @bot.message_handler(commands=['start'])
 def welcome(message):
+    """
+    Приветственная функция - запускает работу бота: выводит приветственное сообщение, отображает кнопки с функциями
+    :param message: принимает сообщение пользователя со значением выполняемой команды ('/start')
+    """
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
     item1 = types.KeyboardButton('/Best deal')
     item2 = types.KeyboardButton('/Low price')
@@ -33,6 +37,10 @@ def welcome(message):
 
 @bot.message_handler(content_types=['text'])
 def command(message):
+    """
+    Функция, обрабатывающая введенную пользователем команду
+    :param message: принимает сообщение пользователя со значением выполняемой команды
+    """
     if message.chat.type == 'private':
 
         user_cmd = message.text[1:].lower().replace(' ', '')
@@ -62,6 +70,10 @@ def command(message):
 
 @bot.message_handler(func=lambda m: True)
 def check_city(message):
+    """
+    Функция по проверке существования искомого города
+    :param message: принимает сообщение пользователя со значением искомого города
+    """
     try:
         city_info = get_city_id(message.text)
         city_id, city_name = city_info[0], city_info[1]
@@ -84,6 +96,10 @@ def check_city(message):
 
 @bot.message_handler(func=lambda m: True)
 def hotel_price(message):
+    """
+    Функция принимает значения диапазона цен и проверяет его валидность
+    :param message: принимает сообщение пользователя со значением диапазона цен
+    """
     price = message.text.split()
     if len(price) == 2 and (price[0] + price[1]).isdecimal():
         ud.add_info_to_db('price', message.text)
@@ -96,6 +112,10 @@ def hotel_price(message):
 
 @bot.message_handler(func=lambda m: True)
 def hotel_distance(message):
+    """
+    Функция принимает предельное расстояние от центра городо до отеля в милях и проверяет его валидность
+    :param message: принимает сообщение пользователя со значением предельного расстояния
+    """
     if message.text.isdecimal():
         ud.add_info_to_db('dist', message.text)
         bot.send_message(message.chat.id, 'Сколько отелей показать?')
@@ -107,6 +127,10 @@ def hotel_distance(message):
 
 @bot.message_handler(func=lambda m: True)
 def hotel_count(message):
+    """
+    Функция принимает количество отелей и проверяет его валидность
+    :param message: принимает сообщение пользователя со значением количества отелей
+    """
     if message.text.isdecimal() and int(message.text) in range(1, 6):
         ud.add_info_to_db('hotelcount', message.text)
         bot.send_message(message.chat.id, 'Введите кол-во фото')
@@ -118,16 +142,23 @@ def hotel_count(message):
 
 @bot.message_handler(func=lambda m: True)
 def photo_count(message):
+    """
+    Функция принимает количество фотографий и проверяет его валидность
+    :param message: принимает сообщение пользователя со значением количества фотографий
+    """
     if message.text.isdecimal() and int(message.text) in range(0, 6):
         ud.add_info_to_db('photocount', message.text)
         bot.send_message(message.chat.id, 'Waiting...')
-        filter_low()
+        user_filter()
     else:
         msg = bot.reply_to(message, 'Кол-во фото введено некорректно. Введите число от 0 до 5')
         bot.register_next_step_handler(msg, photo_count)
 
 
-def filter_low():
+def user_filter():
+    """
+    Функция выполняет подбор отелей в зависимости от введенной команды и указанных параметров
+    """
     user_id = ud.get_info_from_db('userid')
     bot.send_message(user_id, f'Выполняю поиск отелей в\n{ud.get_info_from_db("city")}')
 

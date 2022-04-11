@@ -8,9 +8,11 @@ load_dotenv()
 
 def best_deal(hotel_cnt: str, city_id: str, distance: str, price: str) -> List:
     """
+    :param price: принимает строковое значение предельного расстояния от центра городо до отеля в милях
+    :param distance: принимает строковое значение диапазона цен
     :param city_id: принимает строковое значение id искомого города
     :param hotel_cnt: принимает строковое значение количества искомых отелей
-    :return: возвращает список отелей в искомом городе с мин ценой за ночь
+    :return: возвращает список отелей в искомом городе по указанным параметрам за ночь
     """
 
     x_rapid_key = os.getenv('RapidAPI_Key')
@@ -40,9 +42,6 @@ def best_deal(hotel_cnt: str, city_id: str, distance: str, price: str) -> List:
     #     data = json.load(file)
 
     hotel_list = data["data"]["body"]["searchResults"]["results"]
-
-    # with open(f'{city}_TEST_TEST.json', 'w', encoding='utf-8') as file:
-    #     json.dump(hotel_list, file, indent=4)
 
     hotel_list_mod = []
     res_count = 0
