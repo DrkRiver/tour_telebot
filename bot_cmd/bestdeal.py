@@ -48,54 +48,49 @@ def best_deal(hotel_cnt: str, city_id: str, distance: str, price: str) -> List:
 
     for elem in hotel_list:
         user_dist = float(distance.replace(',', '.'))
-        try:
+        hotel_dist = -0.1
+        hotel_price = -0.1
+        if elem["landmarks"][0]["distance"]:
             hotel_dist = float(elem["landmarks"][0]["distance"].replace(',', '.')[:-5])
-        except KeyError:
-            hotel_dist = -0.1
-        try:
+        if elem["ratePlan"]["price"]["exactCurrent"]:
             hotel_price = elem["ratePlan"]["price"]["exactCurrent"]
-        except KeyError:
-            hotel_price = -0.1
 
         if user_dist >= hotel_dist and price_low <= hotel_price <= price_high:
 
-            try:
-                name = elem["name"]
-            except KeyError:
-                name = 'N/A'
-            try:
-                star_rate = elem["starRating"]
-            except KeyError:
-                star_rate = 'N/A'
-            try:
-                rating = elem["guestReviews"]['unformattedRating']
-            except KeyError:
-                rating = 'N/A'
-            try:
-                addr = elem["address"]["streetAddress"]
-            except KeyError:
-                addr = 'N/A'
-            try:
-                dist = elem["landmarks"][0]["distance"]
-            except KeyError:
-                dist = 'N/A'
-            try:
-                cur_price = elem["ratePlan"]["price"]["current"]
-            except KeyError:
-                cur_price = 'N/A'
+            info_appending(elem, hotel_list_mod)
 
-            hotel_list_mod.append({
-                        '\nid': elem['id'],
-                        'name': name,
-                        'web-site': 'hotels.com/ho' + str(elem['id']),
-                        'star rating': star_rate,
-                        'rating': rating,
-                        'address': addr,
-                        'distance': dist,
-                        'cur price': cur_price,
-            })
             res_count += 1
             if res_count >= int(hotel_cnt):
                 break
 
     return hotel_list_mod
+
+
+def info_appending(elem_dict: dict, hotel_list_mod: List) -> List:
+    teg_list = []
+    teg_list.clear()
+    teg_list = [elem_dict['id'], elem_dict["name"], elem_dict["guestReviews"]['unformattedRating'],
+                elem_dict["address"]["streetAddress"], elem_dict["landmarks"][0]["distance"],
+                elem_dict["ratePlan"]["price"]["current"], elem_dict["starRating"]]
+    val_list = []
+    for val in teg_list:
+        if val:
+            val_list.append(val)
+        else:
+            val_list.append('N/A')
+
+    hotel_list_mod.append({
+        '\nid': val_list[0],
+        'name': val_list[1],
+        'web-site': 'hotels.com/ho' + str(val_list[0]),
+        'star rating': val_list[6],
+        'rating': val_list[2],
+        'address': val_list[3],
+        'distance': val_list[4],
+        'cur price': val_list[5],
+    })
+
+    return hotel_list_mod
+
+
+print(best_deal('2', '549499', '10', '4 50'))

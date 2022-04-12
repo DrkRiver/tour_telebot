@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
+def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List: # TODO добавить эту ф-ю в best deal
     """
-    :param cmd:
+    :param cmd: принимает строковое значение команды, запрошенной пользователем
     :param city_id: принимает строковое значение id искомого города
     :param hotel_cnt: принимает строковое значение количества искомых отелей
     :return: возвращает список отелей в искомом городе с мин ценой за ночь
@@ -80,3 +80,5 @@ def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
         })
 
     return hotel_list_mod
+
+
