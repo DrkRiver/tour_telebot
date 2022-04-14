@@ -47,5 +47,3 @@ def get_city_id(city: str) -> Tuple or bool:
 
     except IndexError:
         return False
-
-# print(get_city_id('London'))

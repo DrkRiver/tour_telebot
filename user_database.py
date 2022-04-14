@@ -37,7 +37,7 @@ def add_info_to_db(column: str, info: str) -> None:
 
     if column == 'results':
         old_info = get_info_from_db(column)
-        cur.execute(f"UPDATE user SET '{column}' = '{old_info} {info}' WHERE reqid='{get_last_id()}'")
+        cur.execute(f"""UPDATE user SET '{column}' = "{old_info} {info}" WHERE reqid='{get_last_id()}'""")
 
     else:
         cur.execute(f"UPDATE user SET '{column}' = '{info}' WHERE reqid='{get_last_id()}'")

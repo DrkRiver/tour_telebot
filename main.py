@@ -3,8 +3,7 @@ from telebot import types
 import telebot
 from dotenv import load_dotenv
 import user_database as ud
-from bot_cmd.lowhighprice import low_high_price
-from bot_cmd.bestdeal import best_deal
+from bot_cmd.bot_filters import best_deal, low_high_price
 from bot_cmd.getcityid import get_city_id
 from bot_cmd.get_photo import get_pict_url
 from datetime import datetime

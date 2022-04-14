@@ -66,7 +66,90 @@ def best_deal(hotel_cnt: str, city_id: str, distance: str, price: str) -> List:
     return hotel_list_mod
 
 
+def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
+    """
+    :param cmd: принимает строковое значение команды, запрошенной пользователем
+    :param city_id: принимает строковое значение id искомого города
+    :param hotel_cnt: принимает строковое значение количества искомых отелей
+    :return: возвращает список отелей в искомом городе с мин ценой за ночь
+    """
+
+    x_rapid_key = os.getenv('RapidAPI_Key')
+    url = "https://hotels4.p.rapidapi.com/properties/list"
+
+    sort_order = "PRICE_HIGHEST_FIRST"
+    if cmd == 'lowprice':
+        sort_order = "PRICE"
+    querystring = {"destinationId": city_id, "pageNumber": "1", "pageSize": hotel_cnt,
+                   "checkIn": "2022-06-08", "checkOut": "2022-06-09", "adults1": "1",
+                   "sortOrder": sort_order}
+
+    headers = {
+        'x-rapidapi-host': "hotels4.p.rapidapi.com",
+        'x-rapidapi-key': x_rapid_key
+        }
+
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    data = json.loads(response.text)
+
+    # with open(f'{city_id}_HOTELS.json', 'w', encoding='utf-8') as file:
+    #     json.dump(data, file, indent=4)
+    #
+    # with open(f'{city_id}_HOTELS.json', 'r', encoding='utf-8') as file:
+    #     data = json.load(file)
+
+    hotel_list = data["data"]["body"]["searchResults"]["results"]
+
+    hotel_list_mod = []
+
+    for elem in hotel_list:
+        info_appending(elem, hotel_list_mod)
+    #     try:
+    #         name = elem["name"]
+    #     except KeyError:
+    #         name = 'N/A'
+    #     try:
+    #         star_rate = elem["starRating"]
+    #     except KeyError:
+    #         star_rate = 'N/A'
+    #     try:
+    #         rating = elem["guestReviews"]['unformattedRating']
+    #     except KeyError:
+    #         rating = 'N/A'
+    #     try:
+    #         addr = elem["address"]["streetAddress"]
+    #     except KeyError:
+    #         addr = 'N/A'
+    #     try:
+    #         dist = elem["landmarks"][0]["distance"]
+    #     except KeyError:
+    #         dist = 'N/A'
+    #     try:
+    #         cur_price = elem["ratePlan"]["price"]["current"]
+    #     except KeyError:
+    #         cur_price = 'N/A'
+    #
+    #     hotel_list_mod.append({
+    #                 '\nid': elem['id'],
+    #                 'name': name,
+    #                 'web-site': 'hotels.com/ho' + str(elem['id']),
+    #                 'star rating': star_rate,
+    #                 'rating': rating,
+    #                 'address': addr,
+    #                 'distance': dist,
+    #                 'cur price': cur_price,
+    #     })
+
+    return hotel_list_mod
+
+
 def info_appending(elem_dict: dict, hotel_list_mod: List) -> List:
+    """
+    Функция проверяет словарь на наличие значений в необходимых ключах и запалняет ими список
+    :param elem_dict: принимает на вход вложенные словари с информацией по отелю
+    :param hotel_list_mod: принимает на вход список, который заполняется необходимыми данными по отелям
+    :return:
+    """
     teg_list = []
     teg_list.clear()
     teg_list = [elem_dict['id'], elem_dict["name"], elem_dict["guestReviews"]['unformattedRating'],
@@ -93,4 +176,4 @@ def info_appending(elem_dict: dict, hotel_list_mod: List) -> List:
     return hotel_list_mod
 
 
-print(best_deal('2', '549499', '10', '4 50'))
+# print(best_deal('2', '549499', '10', '4 50'))
