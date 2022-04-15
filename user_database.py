@@ -1,4 +1,17 @@
 import sqlite3
+import telebot
+from dotenv import load_dotenv
+import os
+
+
+load_dotenv()
+
+bot = telebot.TeleBot(os.getenv('token'))
+
+
+def get_id():
+    print(bot.get_me())
+    return bot.get_me()
 
 
 def create_db() -> None:
@@ -115,3 +128,5 @@ def show_history(user_id: str) -> str:
 
 create_db()
 print_db()
+
+get_id()
