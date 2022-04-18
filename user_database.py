@@ -129,4 +129,4 @@ def show_history(user_id: str) -> str:
 create_db()
 print_db()
 
-get_id()
+# get_id()

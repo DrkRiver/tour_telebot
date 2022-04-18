@@ -20,7 +20,7 @@ def best_deal(hotel_cnt: str, city_id: str, distance: str, price: str) -> List:
 
     querystring = {"destinationId": city_id, "pageNumber": "1", "pageSize": '100',
                    "checkIn": "2022-06-08", "checkOut": "2022-06-09", "adults1": "1",
-                   "sortOrder": "PRICE"}
+                   "sortOrder": "PRICE",  "locale": "ru_RU"}
 
     headers = {
         'x-rapidapi-host': "hotels4.p.rapidapi.com",
@@ -82,7 +82,7 @@ def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
         sort_order = "PRICE"
     querystring = {"destinationId": city_id, "pageNumber": "1", "pageSize": hotel_cnt,
                    "checkIn": "2022-06-08", "checkOut": "2022-06-09", "adults1": "1",
-                   "sortOrder": sort_order}
+                   "sortOrder": sort_order, "locale": "ru_RU"}
 
     headers = {
         'x-rapidapi-host': "hotels4.p.rapidapi.com",
@@ -152,6 +152,7 @@ def info_appending(elem_dict: dict, hotel_list_mod: List) -> List:
     """
     teg_list = []
     teg_list.clear()
+    # TODO при русской локализации код крашится на теге elem_dict["guestReviews"]['unformattedRating']
     teg_list = [elem_dict['id'], elem_dict["name"], elem_dict["guestReviews"]['unformattedRating'],
                 elem_dict["address"]["streetAddress"], elem_dict["landmarks"][0]["distance"],
                 elem_dict["ratePlan"]["price"]["current"], elem_dict["starRating"]]
@@ -164,13 +165,13 @@ def info_appending(elem_dict: dict, hotel_list_mod: List) -> List:
 
     hotel_list_mod.append({
         '\nid': val_list[0],
-        'name': val_list[1],
+        'Название отеля': val_list[1],
         'web-site': 'hotels.com/ho' + str(val_list[0]),
-        'star rating': val_list[6],
-        'rating': val_list[2],
-        'address': val_list[3],
-        'distance': val_list[4],
-        'cur price': val_list[5],
+        'Количество звёзд': val_list[6],
+        'Пользовательский рейтинг': val_list[2],
+        'Адрес': val_list[3],
+        'Расстояние до центра': val_list[4],
+        'Текущая стоимость за ночь': val_list[5],
     })
 
     return hotel_list_mod

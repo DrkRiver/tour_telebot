@@ -16,7 +16,8 @@ def get_city_id(city: str) -> Tuple or bool:
     x_rapid_key = os.getenv('RapidAPI_Key')
     url = "https://hotels4.p.rapidapi.com/locations/v2/search"
 
-    querystring = {"query": city}
+    querystring = {"query": city, "locale": "ru_RU"}
+    # TODO при русской локализации код крашится на теге elem_dict["guestReviews"]['unformattedRating']
 
     headers = {
         'x-rapidapi-host': "hotels4.p.rapidapi.com",
