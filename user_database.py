@@ -37,7 +37,6 @@ def create_db() -> None:
 
 @logger.catch
 def add_info_to_db(column: str, info: str) -> None:
-    # TODO справить проверку ID ользователя: данные смешиваются в многопользовательском режиме
     """
     Функция по добавлению информации в указанный столбец БД
     :param column: принимает строковое значение названия столбца из БД
@@ -127,4 +126,3 @@ def show_history(user_id: str) -> str:
         hist += f'Город поиска: {i_elem[2]}\nКоманда: {i_elem[0]}\n' \
                 f'Время вып-я команды: {i_elem[1]}\nРез-т поиска:\n{i_elem[3]}\n'
     return hist
-
