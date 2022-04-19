@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from typing import Tuple
 from loguru import logger
+import re
 load_dotenv()
 
 
@@ -18,7 +19,7 @@ def get_city_id(city: str) -> Tuple or bool:
     x_rapid_key = os.getenv('RapidAPI_Key')
     url = "https://hotels4.p.rapidapi.com/locations/v2/search"
 
-    querystring = {"query": city, "locate": "ru_RU"}
+    querystring = {"query": city}
     headers = {
         'x-rapidapi-host': "hotels4.p.rapidapi.com",
         'x-rapidapi-key': x_rapid_key
@@ -38,16 +39,9 @@ def get_city_id(city: str) -> Tuple or bool:
     #     data = json.load(file)
 
     try:
-        city_reg = data["suggestions"][0]["entities"][0]["caption"]
-        if city_reg.startswith('<'):
-            city_reg = city_reg[city_reg.rfind(",") + 1:]
-            city_reg = data["suggestions"][0]["entities"][0]["name"] + ',' + city_reg
-        elif city_reg.endswith('>'):
-            city_reg = city_reg[:city_reg.rfind(",") + 1]
-            city_reg = city_reg[:-1]
-        else:
-            city_reg = data["suggestions"][0]["entities"][0]["name"]
-        # ud.add_info_to_db('city', data["suggestions"][0]["entities"][0]["caption"])
+        city_reg = re.sub(r"(</span>)", '', re.sub(
+            r"(<span class='highlighted'>)", '', data["suggestions"][0]["entities"][0]["caption"]))
+        print(city_reg)
         return data["suggestions"][0]["entities"][0]["destinationId"], city_reg
 
     except IndexError:
