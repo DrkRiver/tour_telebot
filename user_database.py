@@ -2,6 +2,7 @@ import sqlite3
 import telebot
 from dotenv import load_dotenv
 import os
+from loguru import logger
 
 
 load_dotenv()
@@ -9,11 +10,7 @@ load_dotenv()
 bot = telebot.TeleBot(os.getenv('token'))
 
 
-def get_id():
-    print(bot.get_me())
-    return bot.get_me()
-
-
+@logger.catch
 def create_db() -> None:
     """
     Функция по проверке существования базы данных и созданию её, в случае отсутствия.
@@ -38,6 +35,7 @@ def create_db() -> None:
     conn.commit()
 
 
+@logger.catch
 def add_info_to_db(column: str, info: str) -> None:
     # TODO справить проверку ID ользователя: данные смешиваются в многопользовательском режиме
     """
@@ -57,6 +55,7 @@ def add_info_to_db(column: str, info: str) -> None:
     conn.commit()
 
 
+@logger.catch
 def get_last_id() -> int:
     """
     Функция по поиску последней строки в БД
@@ -71,6 +70,7 @@ def get_last_id() -> int:
         return False
 
 
+@logger.catch
 def get_info_from_db(column: str) -> str or int:
     """
     Функция предоставляет значение в указанном столбце в последней записи БД
@@ -84,6 +84,7 @@ def get_info_from_db(column: str) -> str or int:
     return one_result
 
 
+@logger.catch
 def new_row() -> None:
     """
     Функция, которая создает новую пустую запись(строку) в БД
@@ -96,6 +97,7 @@ def new_row() -> None:
     conn.commit()
 
 
+@logger.catch
 def print_db() -> None:
     """
     Функция, выводящая всю БД
@@ -109,6 +111,7 @@ def print_db() -> None:
         print(i)
 
 
+@logger.catch
 def show_history(user_id: str) -> str:
     """
     Функция, выдающая 2 последних записи из БД пользователю
@@ -125,8 +128,3 @@ def show_history(user_id: str) -> str:
                 f'Время вып-я команды: {i_elem[1]}\nРез-т поиска:\n{i_elem[3]}\n'
     return hist
 
-
-create_db()
-print_db()
-
-# get_id()

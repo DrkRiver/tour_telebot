@@ -7,9 +7,13 @@ from bot_cmd.bot_filters import best_deal, low_high_price
 from bot_cmd.getcityid import get_city_id
 from bot_cmd.get_photo import get_pict_url
 from datetime import datetime
+from loguru import logger
+
+logger.add('bot_log.log', format='{time} {level} {message}', level='DEBUG', rotation='1 MB')
 
 load_dotenv()
 bot = telebot.TeleBot(os.getenv('token'))
+ud.create_db()
 
 
 @bot.message_handler(commands=['start'])
@@ -19,9 +23,9 @@ def welcome(message):
     :param message: принимает сообщение пользователя со значением выполняемой команды ('/start')
     """
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
-    item1 = types.KeyboardButton('/Best deal')
-    item2 = types.KeyboardButton('/Low price')
-    item3 = types.KeyboardButton('/High price')
+    item1 = types.KeyboardButton('/Bestdeal')
+    item2 = types.KeyboardButton('/Lowprice')
+    item3 = types.KeyboardButton('/Highprice')
     item4 = types.KeyboardButton('/Help')
     item5 = types.KeyboardButton('/History')
 
@@ -29,9 +33,12 @@ def welcome(message):
 
     bot.send_message(message.chat.id,
                      "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, "
-                     "бот созданный чтобы помочь в выборе отеля.".format(
+                     "бот созданный чтобы помочь в выборе отеля."
+                     "\nВведите интересующую команду (помощь по командам /help)".format(
                          message.from_user, bot.get_me()),
                      parse_mode='html', reply_markup=markup)
+
+    logger.info(f'Пользователь {message.from_user.first_name} {message.chat.id} начал работу')
 
 
 @bot.message_handler(content_types=['text'])
@@ -62,9 +69,11 @@ def command(message):
 
             bot.send_message(message.chat.id, 'В каком городе ищем?', reply_markup=types.ReplyKeyboardRemove())
             bot.register_next_step_handler(message, check_city)
+            logger.info(f'Пользователь {message.chat.id} запустил команду {message.text}')
 
         else:
             bot.send_message(message.chat.id, 'Команда не опознана... Пoпробуйте еще раз')
+            logger.debug(f'Пользователь {message.chat.id} ввел некорректную команду {message.text}')
 
 
 @bot.message_handler(func=lambda m: True)
@@ -76,17 +85,20 @@ def check_city(message):
     try:
         city_info = get_city_id(message.text)
         city_id, city_name = city_info[0], city_info[1]
+        print(city_id, city_name)
     except TypeError:
         city_info = False
         city_id, city_name = None, None
     if not city_info:
-        msg = bot.reply_to(message, 'Указанный город не найден, попробуйте еще раз на английском')
+        msg = bot.reply_to(message, 'Указанный город не найден, попробуйте еще раз')
         bot.register_next_step_handler(msg, check_city)
+        logger.debug(f'Пользователь {message.chat.id} ввел город {message.text}, отсутствующий в HotelsAPI')
     else:
         ud.add_info_to_db('city_id', str(city_id))
         ud.add_info_to_db('city', city_name)
+        logger.info(f'Пользователь {message.chat.id} ввел город {ud.get_info_from_db("city")} для поиска отелей')
         if ud.get_info_from_db('command') == 'bestdeal':
-            bot.send_message(message.chat.id, 'Введите диапазон цен через пробел')
+            bot.send_message(message.chat.id, 'Введите диапазон цен в USD через пробел')
             bot.register_next_step_handler(message, hotel_price)
         else:
             bot.send_message(message.chat.id, 'Сколько отелей показать?')
@@ -102,11 +114,12 @@ def hotel_price(message):
     price = message.text.split()
     if len(price) == 2 and (price[0] + price[1]).isdecimal():
         ud.add_info_to_db('price', message.text)
-        bot.send_message(message.chat.id, 'Введите расстояние до центра')
+        bot.send_message(message.chat.id, 'Введите максимальную удаленность отеля от цента искомого города в км')
         bot.register_next_step_handler(message, hotel_distance)
     else:
-        msg = bot.reply_to(message, 'Диапазон цен введен некорректно. Введите два числа через пробел')
+        msg = bot.reply_to(message, 'Диапазон цен в USD введен некорректно. Введите два числа через пробел')
         bot.register_next_step_handler(msg, hotel_price)
+        logger.debug(f'Пользователь {message.chat.id} ввел некорректный диапазон цен({message.text})')
 
 
 @bot.message_handler(func=lambda m: True)
@@ -120,8 +133,9 @@ def hotel_distance(message):
         bot.send_message(message.chat.id, 'Сколько отелей показать?')
         bot.register_next_step_handler(message, hotel_count)
     else:
-        msg = bot.reply_to(message, 'Расстояние до центра введено некорректно. Введите число')
+        msg = bot.reply_to(message, 'Максимальное расстояние до центра введено некорректно. Введите число')
         bot.register_next_step_handler(msg, hotel_distance)
+        logger.debug(f'Пользователь {message.chat.id} ввел некорректное расстояние до центра({message.text})')
 
 
 @bot.message_handler(func=lambda m: True)
@@ -137,6 +151,7 @@ def hotel_count(message):
     else:
         msg = bot.reply_to(message, 'Кол-во отелей введено некорректно. Введите число от 1 до 5')
         bot.register_next_step_handler(msg, hotel_count)
+        logger.debug(f'Пользователь {message.chat.id} ввел некорректное кол-во отелей({message.text})')
 
 
 @bot.message_handler(func=lambda m: True)
@@ -152,6 +167,7 @@ def photo_count(message):
     else:
         msg = bot.reply_to(message, 'Кол-во фото введено некорректно. Введите число от 0 до 5')
         bot.register_next_step_handler(msg, photo_count)
+        logger.debug(f'Пользователь {message.chat.id} ввел некорректное кол-во фотографий({message.text})')
 
 
 def user_filter():
@@ -162,11 +178,21 @@ def user_filter():
     bot.send_message(user_id, f'Выполняю поиск отелей в\n{ud.get_info_from_db("city")}')
 
     if ud.get_info_from_db('command') == 'bestdeal':
+        logger.info(f"Запрос №{ud.get_info_from_db('reqid')}:"
+                    f"Запущена обработка команды {ud.get_info_from_db('command')} со следующими параметрами: "
+                    f"кол-во отелей - {ud.get_info_from_db('hotelcount')},"
+                    f"город поиска/его id - {ud.get_info_from_db('city')}/{ud.get_info_from_db('city_id')},"
+                    f"максимальная удаленность от центра города - {ud.get_info_from_db('dist')},"
+                    f"диапазон цен в USD - {ud.get_info_from_db('price')}")
         data_n = best_deal(ud.get_info_from_db('hotelcount'),
                            ud.get_info_from_db('city_id'),
                            ud.get_info_from_db('dist'),
                            ud.get_info_from_db('price'),)
     else:
+        logger.info(f"Запрос №{ud.get_info_from_db('reqid')}: "
+                    f"Запущена обработка команды {ud.get_info_from_db('command')} со следующими параметрами: "
+                    f"кол-во отелей - {ud.get_info_from_db('hotelcount')},"
+                    f"город поиска/его id - {ud.get_info_from_db('city')}/{ud.get_info_from_db('city_id')},")
         data_n = low_high_price(ud.get_info_from_db('hotelcount'),
                                 ud.get_info_from_db('city_id'),
                                 ud.get_info_from_db('command'))
@@ -174,6 +200,7 @@ def user_filter():
     if len(data_n) == 0:
         bot.send_message(user_id, 'К сожалению, по Вашим критериям ничего не найдено.')
         ud.add_info_to_db('results', 'По заданным критериям ничего не найдено.')
+        logger.debug(f"По запросу {ud.get_info_from_db('reqid')} поиск завершен без результата")
     else:
         for i_elem in data_n:
             msg_to_user = ''
@@ -186,11 +213,12 @@ def user_filter():
                     bot.send_photo(user_id, j_elem, parse_mode="HTML")
             ud.add_info_to_db('results', msg_to_user + '\n')
         bot.send_message(user_id, 'Поиск завершен.')
+        logger.info(f"По запросу {ud.get_info_from_db('reqid')} поиск завершен, результат записан в БД")
 
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
-    item1 = types.KeyboardButton('/Best deal')
-    item2 = types.KeyboardButton('/Low price')
-    item3 = types.KeyboardButton('/High price')
+    item1 = types.KeyboardButton('/Bestdeal')
+    item2 = types.KeyboardButton('/Lowprice')
+    item3 = types.KeyboardButton('/Highprice')
     item4 = types.KeyboardButton('/Help')
     item5 = types.KeyboardButton('/History')
 

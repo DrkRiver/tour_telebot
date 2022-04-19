@@ -1,11 +1,13 @@
 import os
 import requests
 from dotenv import load_dotenv
+from loguru import logger
 load_dotenv()
 
 X_RAPID_KEY = os.getenv('RapidAPI_Key')
 
 
+@logger.catch
 def get_pict_url(hotel_id: str, pict_cnt: int) -> list:
     """
     Функция по получения ссылок на фотографии к найденному отелю
@@ -22,10 +24,19 @@ def get_pict_url(hotel_id: str, pict_cnt: int) -> list:
         'x-rapidapi-key': X_RAPID_KEY
     }
     if int(pict_cnt) > 0:
-        response = requests.request("GET", url, headers=headers, params=querystring, timeout=10)
+        try:
+            response = requests.request("GET", url, headers=headers, params=querystring, timeout=10)
+        except requests.exceptions.RequestException as e:
+            raise requests.RequestException(f'req_err: {e}')
 
-        data = response.json()
-        pics: list = [pic_url['baseUrl'].replace('{size}', 'b') for pic_url in data['hotelImages'][:pict_cnt]]
+        try:
+            data = response.json()
+            pics: list = [pic_url['baseUrl'].replace('{size}', 'b') for pic_url in data['hotelImages'][:pict_cnt]]
+        except Exception as e:
+            raise Exception(f'Ошибка парсинга фото: {e}')
 
         return pics
+
+
+
 

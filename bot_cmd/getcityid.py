@@ -3,9 +3,11 @@ import json
 import os
 from dotenv import load_dotenv
 from typing import Tuple
+from loguru import logger
 load_dotenv()
 
 
+@logger.catch
 def get_city_id(city: str) -> Tuple or bool:
     """
 
@@ -16,15 +18,17 @@ def get_city_id(city: str) -> Tuple or bool:
     x_rapid_key = os.getenv('RapidAPI_Key')
     url = "https://hotels4.p.rapidapi.com/locations/v2/search"
 
-    querystring = {"query": city, "locale": "ru_RU"}
-    # TODO при русской локализации код крашится на теге elem_dict["guestReviews"]['unformattedRating']
-
+    querystring = {"query": city, "locate": "ru_RU"}
     headers = {
         'x-rapidapi-host': "hotels4.p.rapidapi.com",
         'x-rapidapi-key': x_rapid_key
     }
 
-    response = requests.request("GET", url, headers=headers, params=querystring)
+    try:
+        response = requests.request("GET", url, headers=headers, params=querystring, timeout=10)
+    except requests.exceptions.RequestException as e:
+        raise requests.RequestException(f'req_err: {e}')
+
     data = json.loads(response.text)
 
     # with open(f'{city}.json', 'w') as file:
@@ -47,4 +51,5 @@ def get_city_id(city: str) -> Tuple or bool:
         return data["suggestions"][0]["entities"][0]["destinationId"], city_reg
 
     except IndexError:
+        logger.error(f'Запрос по городу {city} не дал результата')
         return False
