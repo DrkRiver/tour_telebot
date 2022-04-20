@@ -144,7 +144,7 @@ def info_appending(elem_dict: dict, hotel_list_mod: List) -> List:
             val_list.append('N/A')
 
     hotel_list_mod.append({
-        '\nid': val_list[0],
+        'id': val_list[0],
         'Название отеля': val_list[1],
         'web-site': 'hotels.com/ho' + str(val_list[0]),
         'Количество звёзд': val_list[6],

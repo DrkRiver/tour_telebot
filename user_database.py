@@ -1,13 +1,9 @@
 import sqlite3
-import telebot
 from dotenv import load_dotenv
-import os
 from loguru import logger
 
 
 load_dotenv()
-
-bot = telebot.TeleBot(os.getenv('token'))
 
 
 @logger.catch
@@ -111,7 +107,7 @@ def print_db() -> None:
 
 
 @logger.catch
-def show_history(user_id: str) -> str:
+def show_history(user_id: str):
     """
     Функция, выдающая 2 последних записи из БД пользователю
     :param user_id: принимает строковое значение id пользователя Telegram
@@ -121,8 +117,8 @@ def show_history(user_id: str) -> str:
     cur = conn.cursor()
     cur.execute(f"SELECT command, time, city, results FROM user "
                 f"WHERE userid = '{user_id}' AND command != 'history' ORDER BY reqid DESC LIMIT 2")
-    hist = ''
+    hist = []
     for i_elem in cur.fetchall():
-        hist += f'Город поиска: {i_elem[2]}\nКоманда: {i_elem[0]}\n' \
-                f'Время вып-я команды: {i_elem[1]}\nРез-т поиска:\n{i_elem[3]}\n'
+        hist.append(f'Город поиска: {i_elem[2]}\nКоманда: {i_elem[0]}\n'
+                    f'Время вып-я команды: {i_elem[1]}\nРез-т поиска:\n{i_elem[3]}\n')
     return hist

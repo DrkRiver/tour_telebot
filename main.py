@@ -1,6 +1,6 @@
 import os
-from telebot import types
 import telebot
+from telebot import types
 from dotenv import load_dotenv
 import user_database as ud
 from bot_cmd.bot_filters import best_deal, low_high_price
@@ -52,7 +52,8 @@ def command(message):
         user_cmd = message.text[1:].lower().replace(' ', '')
 
         if user_cmd == 'history':
-            bot.send_message(message.chat.id, ud.show_history(message.chat.id))
+            for history_elem in ud.show_history(message.chat.id):
+                bot.send_message(message.chat.id, history_elem)
 
         elif user_cmd == 'help':
             bot.send_message(message.chat.id, 'Команды бота:\n'
@@ -85,12 +86,12 @@ def check_city(message):
     try:
         city_info = get_city_id(message.text)
         city_id, city_name = city_info[0], city_info[1]
-        print(city_id, city_name)
+
     except TypeError:
         city_info = False
         city_id, city_name = None, None
     if not city_info:
-        msg = bot.reply_to(message, 'Указанный город не найден, попробуйте еще раз')
+        msg = bot.reply_to(message, 'Указанный город не найден, попробуйте еще раз на английском языке')
         bot.register_next_step_handler(msg, check_city)
         logger.debug(f'Пользователь {message.chat.id} ввел город {message.text}, отсутствующий в HotelsAPI')
     else:
@@ -208,7 +209,7 @@ def user_filter():
                 msg_to_user += f'{k}: {v}\n'
             bot.send_message(user_id, msg_to_user)
             if ud.get_info_from_db('photocount') != 0:
-                for j_elem in get_pict_url(i_elem['\nid'], ud.get_info_from_db('photocount')):
+                for j_elem in get_pict_url(i_elem['id'], ud.get_info_from_db('photocount')):
                     msg_to_user += ' ' + j_elem + ' \n'
                     bot.send_photo(user_id, j_elem, parse_mode="HTML")
             ud.add_info_to_db('results', msg_to_user + '\n')
