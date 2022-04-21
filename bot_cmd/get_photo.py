@@ -26,13 +26,13 @@ def get_pict_url(hotel_id: str, pict_cnt: int) -> list:
     if int(pict_cnt) > 0:
         try:
             response = requests.request("GET", url, headers=headers, params=querystring, timeout=10)
-        except requests.exceptions.RequestException as e:
-            raise requests.RequestException(f'req_err: {e}')
+        except requests.exceptions.RequestException as err:
+            raise requests.RequestException(f'req_err: {err}')
 
         try:
             data = response.json()
             pics: list = [pic_url['baseUrl'].replace('{size}', 'b') for pic_url in data['hotelImages'][:pict_cnt]]
-        except Exception as e:
-            raise Exception(f'Ошибка парсинга фото: {e}')
+        except Exception as err:
+            raise Exception(f'Ошибка парсинга фото: {err}')
 
         return pics

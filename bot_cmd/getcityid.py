@@ -27,8 +27,8 @@ def get_city_id(city: str) -> Tuple or bool:
 
     try:
         response = requests.request("GET", url, headers=headers, params=querystring, timeout=10)
-    except requests.exceptions.RequestException as e:
-        raise requests.RequestException(f'req_err: {e}')
+    except requests.exceptions.RequestException as err:
+        raise requests.RequestException(f'req_err: {err}')
 
     data = json.loads(response.text)
 

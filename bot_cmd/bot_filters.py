@@ -31,8 +31,8 @@ def best_deal(hotel_cnt: str, city_id: str, distance: str, price: str) -> List:
 
     try:
         response = requests.request("GET", url, headers=headers, params=querystring, timeout=10)
-    except requests.exceptions.RequestException as e:
-        raise requests.RequestException(f'req_err: {e}')
+    except requests.exceptions.RequestException as err:
+        raise requests.RequestException(f'req_err: {err}')
 
     data = json.loads(response.text)
 
@@ -102,8 +102,8 @@ def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
 
     try:
         response = requests.request("GET", url, headers=headers, params=querystring, timeout=10)
-    except requests.exceptions.RequestException as e:
-        raise requests.RequestException(f'req_err: {e}')
+    except requests.exceptions.RequestException as err:
+        raise requests.RequestException(f'req_err: {err}')
 
     data = json.loads(response.text)
 
@@ -132,8 +132,8 @@ def info_appending(elem_dict: dict, hotel_list_mod: List) -> List:
     :return:
     """
     teg_list = []
-    teg_list.clear()
-    teg_list = [elem_dict['id'], elem_dict["name"], elem_dict["guestReviews"]['unformattedRating'],
+    teg_list.clear() #TODO справить ошибку: код падает, если тег  "guestReviews" пустой
+    teg_list = [elem_dict["id"], elem_dict["name"], elem_dict["guestReviews"]["unformattedRating"],
                 elem_dict["address"]["streetAddress"], elem_dict["landmarks"][0]["distance"],
                 elem_dict["ratePlan"]["price"]["current"], elem_dict["starRating"]]
     val_list = []
