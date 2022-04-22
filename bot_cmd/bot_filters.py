@@ -58,15 +58,8 @@ def best_deal(hotel_cnt: str, city_id: str, distance: str, price: str) -> List:
 
     for elem in hotel_list:
         user_dist = float(distance.replace(',', '.'))
-        hotel_dist = -0.1
-        hotel_price = -0.1
-        try:
-            if elem["landmarks"][0]["distance"] and elem["ratePlan"]["price"]["exactCurrent"]:
-                hotel_dist = float(elem["landmarks"][0]["distance"].replace(',', '.')[:-5])
-                hotel_price = elem["ratePlan"]["price"]["exactCurrent"]
-        except (KeyError, ValueError):
-            logger.error(f"По отелю с id {elem['id']} не заполнены ключевые поля. Отклонен.")
-            continue
+        hotel_dist = float(elem.get("landmarks", {})[0].get("distance", '9999999').split()[0].replace(',', '.'))
+        hotel_price = float(elem.get("ratePlan", {}).get("price", {}).get("current", '9999')[1:])
 
         if user_dist >= hotel_dist and price_low <= hotel_price <= price_high:
 
@@ -138,7 +131,7 @@ def info_appending(elem_dict: dict, hotel_list_mod: List) -> List:
     no_info = 'n/a, check web-site'
     hotel_list_mod.append({
         'id': elem_dict.get('id', no_info),
-        'Название отеля': elem_dict.get('id', no_info),
+        'Название отеля': elem_dict.get('name', no_info),
         'web-site': 'hotels.com/ho' + str(elem_dict.get('id', 0)),
         'Количество звёзд': elem_dict.get('starRating', no_info),
         'Пользовательский рейтинг': elem_dict.get("guestReviews", {}).get("unformattedRating", no_info),

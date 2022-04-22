@@ -63,10 +63,10 @@ def command(message):
                                               '/history - покажет 2 последних запроса')
 
         elif user_cmd in ('lowprice', 'highprice', 'bestdeal'):
-            ud.new_row()
-            ud.add_info_to_db('userid', message.chat.id)
-            ud.add_info_to_db('command', user_cmd)
-            ud.add_info_to_db('time', str(datetime.now())[:-7])
+            ud.new_row(message.chat.id)
+            ud.add_info_to_db('userid', message.chat.id, message.chat.id)
+            ud.add_info_to_db('command', user_cmd, message.chat.id)
+            ud.add_info_to_db('time', str(datetime.now())[:-7], message.chat.id)
 
             bot.send_message(message.chat.id, 'В каком городе ищем?', reply_markup=types.ReplyKeyboardRemove())
             bot.register_next_step_handler(message, check_city)
@@ -96,10 +96,11 @@ def check_city(message):
         bot.register_next_step_handler(msg, check_city)
         logger.debug(f'Пользователь {message.chat.id} ввел город {message.text}, отсутствующий в HotelsAPI')
     else:
-        ud.add_info_to_db('city_id', str(city_id))
-        ud.add_info_to_db('city', city_name)
-        logger.info(f'Пользователь {message.chat.id} ввел город {ud.get_info_from_db("city")} для поиска отелей')
-        if ud.get_info_from_db('command') == 'bestdeal':
+        ud.add_info_to_db('city_id', str(city_id), message.chat.id)
+        ud.add_info_to_db('city', city_name, message.chat.id)
+        logger.info(f'Пользователь {message.chat.id} ввел город '
+                    f'{ud.get_info_from_db("city", message.chat.id)} для поиска отелей')
+        if ud.get_info_from_db('command', message.chat.id) == 'bestdeal':
             bot.send_message(message.chat.id, 'Введите диапазон цен в USD через пробел')
             bot.register_next_step_handler(message, hotel_price)
         else:
@@ -115,7 +116,7 @@ def hotel_price(message):
     """
     price = message.text.split()
     if len(price) == 2 and (price[0] + price[1]).isdecimal():
-        ud.add_info_to_db('price', message.text)
+        ud.add_info_to_db('price', message.text, message.chat.id)
         bot.send_message(message.chat.id, 'Введите максимальную удаленность отеля от цента искомого города в км')
         bot.register_next_step_handler(message, hotel_distance)
     else:
@@ -131,7 +132,7 @@ def hotel_distance(message):
     :param message: принимает сообщение пользователя со значением предельного расстояния
     """
     if message.text.isdecimal():
-        ud.add_info_to_db('dist', message.text)
+        ud.add_info_to_db('dist', message.text, message.chat.id)
         bot.send_message(message.chat.id, 'Сколько отелей показать?')
         bot.register_next_step_handler(message, hotel_count)
     else:
@@ -147,7 +148,7 @@ def hotel_count(message):
     :param message: принимает сообщение пользователя со значением количества отелей
     """
     if message.text.isdecimal() and int(message.text) in range(1, 6):
-        ud.add_info_to_db('hotelcount', message.text)
+        ud.add_info_to_db('hotelcount', message.text, message.chat.id)
         bot.send_message(message.chat.id, 'Введите кол-во фото')
         bot.register_next_step_handler(message, photo_count)
     else:
@@ -163,59 +164,61 @@ def photo_count(message):
     :param message: принимает сообщение пользователя со значением количества фотографий
     """
     if message.text.isdecimal() and int(message.text) in range(0, 6):
-        ud.add_info_to_db('photocount', message.text)
+        ud.add_info_to_db('photocount', message.text, message.chat.id)
         bot.send_message(message.chat.id, 'Waiting...')
-        user_filter()
+        user_filter(message.chat.id)
     else:
         msg = bot.reply_to(message, 'Кол-во фото введено некорректно. Введите число от 0 до 5')
         bot.register_next_step_handler(msg, photo_count)
         logger.debug(f'Пользователь {message.chat.id} ввел некорректное кол-во фотографий({message.text})')
 
 
-def user_filter():
+def user_filter(user_id):
     """
     Функция выполняет подбор отелей в зависимости от введенной команды и указанных параметров
     """
-    user_id = ud.get_info_from_db('userid')
-    bot.send_message(user_id, f'Выполняю поиск отелей в\n{ud.get_info_from_db("city")}')
+    # user_id = ud.get_info_from_db('userid')
+    bot.send_message(user_id, f'Выполняю поиск отелей в\n{ud.get_info_from_db("city", user_id)}')
 
-    if ud.get_info_from_db('command') == 'bestdeal':
-        logger.info(f"Запрос №{ud.get_info_from_db('reqid')}:"
-                    f"Запущена обработка команды {ud.get_info_from_db('command')} со следующими параметрами: "
-                    f"кол-во отелей - {ud.get_info_from_db('hotelcount')},"
-                    f"город поиска/его id - {ud.get_info_from_db('city')}/{ud.get_info_from_db('city_id')},"
-                    f"максимальная удаленность от центра города - {ud.get_info_from_db('dist')},"
-                    f"диапазон цен в USD - {ud.get_info_from_db('price')}")
-        data_n = best_deal(ud.get_info_from_db('hotelcount'),
-                           ud.get_info_from_db('city_id'),
-                           ud.get_info_from_db('dist'),
-                           ud.get_info_from_db('price'),)
+    if ud.get_info_from_db('command', user_id) == 'bestdeal':
+        logger.info(f"Запрос №{ud.get_info_from_db('reqid', user_id)}:"
+                    f"Запущена обработка команды {ud.get_info_from_db('command', user_id)} со следующими параметрами: "
+                    f"кол-во отелей - {ud.get_info_from_db('hotelcount', user_id)},"
+                    f"город поиска/его id - {ud.get_info_from_db('city', user_id)}/"
+                    f"{ud.get_info_from_db('city_id', user_id)},"
+                    f"максимальная удаленность от центра города - {ud.get_info_from_db('dist', user_id)},"
+                    f"диапазон цен в USD - {ud.get_info_from_db('price', user_id)}")
+        data_n = best_deal(ud.get_info_from_db('hotelcount', user_id),
+                           ud.get_info_from_db('city_id', user_id),
+                           ud.get_info_from_db('dist', user_id),
+                           ud.get_info_from_db('price', user_id),)
     else:
-        logger.info(f"Запрос №{ud.get_info_from_db('reqid')}: "
-                    f"Запущена обработка команды {ud.get_info_from_db('command')} со следующими параметрами: "
-                    f"кол-во отелей - {ud.get_info_from_db('hotelcount')},"
-                    f"город поиска/его id - {ud.get_info_from_db('city')}/{ud.get_info_from_db('city_id')},")
-        data_n = low_high_price(ud.get_info_from_db('hotelcount'),
-                                ud.get_info_from_db('city_id'),
-                                ud.get_info_from_db('command'))
+        logger.info(f"Запрос №{ud.get_info_from_db('reqid', user_id)}: "
+                    f"Запущена обработка команды {ud.get_info_from_db('command', user_id)} со следующими параметрами: "
+                    f"кол-во отелей - {ud.get_info_from_db('hotelcount', user_id)},"
+                    f"город поиска/его id - {ud.get_info_from_db('city', user_id)}/"
+                    f"{ud.get_info_from_db('city_id', user_id)},")
+        data_n = low_high_price(ud.get_info_from_db('hotelcount', user_id),
+                                ud.get_info_from_db('city_id', user_id),
+                                ud.get_info_from_db('command', user_id))
 
     if len(data_n) == 0:
         bot.send_message(user_id, 'К сожалению, по Вашим критериям ничего не найдено.')
-        ud.add_info_to_db('results', 'По заданным критериям ничего не найдено.')
-        logger.debug(f"По запросу {ud.get_info_from_db('reqid')} поиск завершен без результата")
+        ud.add_info_to_db('results', 'По заданным критериям ничего не найдено.', user_id)
+        logger.debug(f"По запросу {ud.get_info_from_db('reqid', user_id)} поиск завершен без результата")
     else:
         for i_elem in data_n:
             msg_to_user = ''
             for k, v in i_elem.items():
                 msg_to_user += f'{k}: {v}\n'
             bot.send_message(user_id, msg_to_user)
-            if ud.get_info_from_db('photocount') != 0:
-                for j_elem in get_pict_url(i_elem['id'], ud.get_info_from_db('photocount')):
+            if ud.get_info_from_db('photocount', user_id) != 0:
+                for j_elem in get_pict_url(i_elem['id'], ud.get_info_from_db('photocount', user_id)):
                     msg_to_user += ' ' + j_elem + ' \n'
                     bot.send_photo(user_id, j_elem, parse_mode="HTML")
-            ud.add_info_to_db('results', msg_to_user + '\n')
+            ud.add_info_to_db('results', msg_to_user + '\n', user_id)
         bot.send_message(user_id, 'Поиск завершен.')
-        logger.info(f"По запросу {ud.get_info_from_db('reqid')} поиск завершен, результат записан в БД")
+        logger.info(f"По запросу {ud.get_info_from_db('reqid', user_id)} поиск завершен, результат записан в БД")
 
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
     item1 = types.KeyboardButton('/Bestdeal')
