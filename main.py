@@ -73,7 +73,8 @@ def command(message):
             logger.info(f'Пользователь {message.chat.id} запустил команду {message.text}')
 
         else:
-            bot.send_message(message.chat.id, 'Команда не опознана... Пoпробуйте еще раз')
+            bot.send_message(message.chat.id, 'Команда не опознана... Пoпробуйте еще раз\n'
+                                              'Для получения подсказки по командам нажмите /help')
             logger.debug(f'Пользователь {message.chat.id} ввел некорректную команду {message.text}')
 
 

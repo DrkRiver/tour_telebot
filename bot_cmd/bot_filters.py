@@ -4,7 +4,11 @@ import requests
 from typing import List
 from dotenv import load_dotenv
 from loguru import logger
+import datetime
 load_dotenv()
+
+date_1 = datetime.date.today() + datetime.timedelta(days=1)
+date_2 = date_1 + + datetime.timedelta(days=1)
 
 
 @logger.catch
@@ -21,7 +25,7 @@ def best_deal(hotel_cnt: str, city_id: str, distance: str, price: str) -> List:
     url = "https://hotels4.p.rapidapi.com/properties/list"
 
     querystring = {"destinationId": city_id, "pageNumber": "1", "pageSize": '100',
-                   "checkIn": "2022-06-08", "checkOut": "2022-06-09", "adults1": "1",
+                   "checkIn": date_1, "checkOut": date_2, "adults1": "1",
                    "sortOrder": "PRICE",  "locale": "ru_RU"}
 
     headers = {
@@ -57,9 +61,8 @@ def best_deal(hotel_cnt: str, city_id: str, distance: str, price: str) -> List:
         hotel_dist = -0.1
         hotel_price = -0.1
         try:
-            if elem["landmarks"][0]["distance"]:
+            if elem["landmarks"][0]["distance"] and elem["ratePlan"]["price"]["exactCurrent"]:
                 hotel_dist = float(elem["landmarks"][0]["distance"].replace(',', '.')[:-5])
-            if elem["ratePlan"]["price"]["exactCurrent"]:
                 hotel_price = elem["ratePlan"]["price"]["exactCurrent"]
         except (KeyError, ValueError):
             logger.error(f"По отелю с id {elem['id']} не заполнены ключевые поля. Отклонен.")
@@ -92,7 +95,7 @@ def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
     if cmd == 'lowprice':
         sort_order = "PRICE"
     querystring = {"destinationId": city_id, "pageNumber": "1", "pageSize": hotel_cnt,
-                   "checkIn": "2022-06-08", "checkOut": "2022-06-09", "adults1": "1",
+                   "checkIn": date_1, "checkOut": date_2, "adults1": "1",
                    "sortOrder": sort_order, "locate": "ru_RU"}
 
     headers = {
@@ -131,27 +134,17 @@ def info_appending(elem_dict: dict, hotel_list_mod: List) -> List:
     :param hotel_list_mod: принимает на вход список, который заполняется необходимыми данными по отелям
     :return:
     """
-    teg_list = []
-    teg_list.clear() #TODO справить ошибку: код падает, если тег  "guestReviews" пустой
-    teg_list = [elem_dict["id"], elem_dict["name"], elem_dict["guestReviews"]["unformattedRating"],
-                elem_dict["address"]["streetAddress"], elem_dict["landmarks"][0]["distance"],
-                elem_dict["ratePlan"]["price"]["current"], elem_dict["starRating"]]
-    val_list = []
-    for val in teg_list:
-        if val:
-            val_list.append(val)
-        else:
-            val_list.append('N/A')
 
+    no_info = 'n/a, check web-site'
     hotel_list_mod.append({
-        'id': val_list[0],
-        'Название отеля': val_list[1],
-        'web-site': 'hotels.com/ho' + str(val_list[0]),
-        'Количество звёзд': val_list[6],
-        'Пользовательский рейтинг': val_list[2],
-        'Адрес': val_list[3],
-        'Расстояние до центра': val_list[4],
-        'Текущая стоимость за ночь': val_list[5],
+        'id': elem_dict.get('id', no_info),
+        'Название отеля': elem_dict.get('id', no_info),
+        'web-site': 'hotels.com/ho' + str(elem_dict.get('id', 0)),
+        'Количество звёзд': elem_dict.get('starRating', no_info),
+        'Пользовательский рейтинг': elem_dict.get("guestReviews", {}).get("unformattedRating", no_info),
+        'Адрес': elem_dict.get("address", {}).get("streetAddress", no_info),
+        'Расстояние до центра': elem_dict.get("landmarks", {})[0].get("distance", no_info),
+        'Текущая стоимость за ночь': elem_dict.get("ratePlan", {}).get("price", {}).get("current", no_info),
     })
 
     return hotel_list_mod
