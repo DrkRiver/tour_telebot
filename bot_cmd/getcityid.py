@@ -32,12 +32,6 @@ def get_city_id(city: str) -> Tuple or bool:
 
     data = json.loads(response.text)
 
-    # with open(f'{city}.json', 'w') as file:
-    #     json.dump(data, file, indent=4)
-    #
-    # with open(f'{city}.json', 'r') as file:
-    #     data = json.load(file)
-
     try:
         city_reg = re.sub(r"(</span>)", '', re.sub(
             r"(<span class='highlighted'>)", '', data["suggestions"][0]["entities"][0]["caption"]))

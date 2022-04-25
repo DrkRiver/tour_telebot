@@ -1,0 +1,2 @@
+# token = 'ваш бот токен'  # bot token
+# RapidAPI_Key = 'ваш HotelsAPI токен' # API key

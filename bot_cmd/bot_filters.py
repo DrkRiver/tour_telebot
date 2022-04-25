@@ -7,8 +7,8 @@ from loguru import logger
 import datetime
 load_dotenv()
 
-date_1 = datetime.date.today() + datetime.timedelta(days=1)
-date_2 = date_1 + + datetime.timedelta(days=1)
+date_checkIn = datetime.date.today() + datetime.timedelta(days=1)
+date_checkOut = date_checkIn + + datetime.timedelta(days=1)
 
 
 @logger.catch
@@ -25,7 +25,7 @@ def best_deal(hotel_cnt: str, city_id: str, distance: str, price: str) -> List:
     url = "https://hotels4.p.rapidapi.com/properties/list"
 
     querystring = {"destinationId": city_id, "pageNumber": "1", "pageSize": '100',
-                   "checkIn": date_1, "checkOut": date_2, "adults1": "1",
+                   "checkIn": date_checkIn, "checkOut": date_checkOut, "adults1": "1",
                    "sortOrder": "PRICE",  "locale": "ru_RU"}
 
     headers = {
@@ -44,12 +44,6 @@ def best_deal(hotel_cnt: str, city_id: str, distance: str, price: str) -> List:
     price_high = float(price.split()[1])
     if price_low > price_high:
         price_low, price_high = price_high, price_low
-
-    # with open(f'{city_id}_HOTELS.json', 'w', encoding='utf-8') as file:
-    #     json.dump(data, file, indent=4)
-    #
-    # with open(f'{city_id}_HOTELS.json', 'r', encoding='utf-8') as file:
-    #     data = json.load(file)
 
     hotel_list = data["data"]["body"]["searchResults"]["results"]
 
@@ -88,7 +82,7 @@ def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
     if cmd == 'lowprice':
         sort_order = "PRICE"
     querystring = {"destinationId": city_id, "pageNumber": "1", "pageSize": hotel_cnt,
-                   "checkIn": date_1, "checkOut": date_2, "adults1": "1",
+                   "checkIn": date_checkIn, "checkOut": date_checkOut, "adults1": "1",
                    "sortOrder": sort_order, "locate": "ru_RU"}
 
     headers = {
@@ -102,12 +96,6 @@ def low_high_price(hotel_cnt: str, city_id: str, cmd: str) -> List:
         raise requests.RequestException(f'req_err: {err}')
 
     data = json.loads(response.text)
-
-    # with open(f'{city_id}_HOTELS.json', 'w', encoding='utf-8') as file:
-    #     json.dump(data, file, indent=4)
-    #
-    # with open(f'{city_id}_HOTELS.json', 'r', encoding='utf-8') as file:
-    #     data = json.load(file)
 
     hotel_list = data["data"]["body"]["searchResults"]["results"]
 

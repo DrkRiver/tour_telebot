@@ -177,7 +177,6 @@ def user_filter(user_id):
     """
     Функция выполняет подбор отелей в зависимости от введенной команды и указанных параметров
     """
-    # user_id = ud.get_info_from_db('userid')
     bot.send_message(user_id, f'Выполняю поиск отелей в\n{ud.get_info_from_db("city", user_id)}')
 
     if ud.get_info_from_db('command', user_id) == 'bestdeal':

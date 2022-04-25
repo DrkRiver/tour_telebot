@@ -5,11 +5,7 @@
    pip install -r requirements.txt
 
     для установки окружения
-2) создать документ '.env' с двумя токенами 
-
-    token = 'ваш бот токен'  # bot token
-
-    RapidAPI_Key = 'ваш HotelsAPI токен' # API key
+2) создать документ '.env' с двумя токенами. Пример в env-example.txt 
 
 В следующих файлах содержится код о:
 
